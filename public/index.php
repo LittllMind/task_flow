@@ -119,6 +119,7 @@ if (($action === 'edit') && isset($_GET['id'])) {
     <header>
       <h1>TaskFlow</h1>
       <span class="count"><?= count($tasks) ?> tâche<?= count($tasks) > 1 ? 's' : '' ?></span>
+      <a class="admin-link" href="admin.php" title="Gérer les catégories">⚙</a>
     </header>
 
     <nav class="filters">
