@@ -90,6 +90,7 @@ if (($action === 'edit') && isset($_GET['id'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TaskFlow</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2322d3ee'/%3E%3Ctext x='50' y='68' font-size='55' text-anchor='middle' fill='%230f172a'%3E✓%3C/text%3E%3C/svg%3E">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -120,22 +121,19 @@ if (($action === 'edit') && isset($_GET['id'])) {
             </div>
           </div>
           <div class="task-actions">
-            <button class="menu-btn" data-id="<?= (int) $task['id'] ?>" title="Actions">⋮</button>
-            <div class="task-menu" id="menu-<?= (int) $task['id'] ?>">
-              <form method="post" class="menu-item">
-                <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
-                <input type="hidden" name="action" value="done">
-                <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
-                <button type="submit">✓ Terminer</button>
-              </form>
-              <a class="menu-item" href="?action=edit&id=<?= (int) $task['id'] ?>">✎ Éditer</a>
-              <form method="post" class="menu-item" onsubmit="return confirm('Supprimer cette tâche ?');">
-                <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
-                <input type="hidden" name="action" value="delete">
-                <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
-                <button type="submit" class="danger">✕ Supprimer</button>
-              </form>
-            </div>
+            <form method="post" class="action-form">
+              <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+              <input type="hidden" name="action" value="done">
+              <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
+              <button type="submit" class="btn btn-success" title="Terminer">✓</button>
+            </form>
+            <a class="btn btn-primary" href="?action=edit&id=<?= (int) $task['id'] ?>" title="Éditer">✎</a>
+            <form method="post" class="action-form" onsubmit="return confirm('Supprimer cette tâche ?');">
+              <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
+              <button type="submit" class="btn btn-danger" title="Supprimer">✕</button>
+            </form>
           </div>
         </article>
       <?php endforeach; ?>

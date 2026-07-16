@@ -314,3 +314,28 @@ header .count {
 .task-menu .menu-item button.danger {
   color: var(--danger);
 }
+
+.action-form {
+  display: inline;
+}
+
+.action-form button,
+.action-form a.btn,
+a.btn,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: .5rem;
+  color: #fff;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-success { background: var(--success); }
+.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-danger { background: var(--danger); }
