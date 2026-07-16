@@ -6,43 +6,61 @@ require __DIR__ . '/../vendor/autoload.php';
 use TaskFlow\Database;
 use TaskFlow\TaskRepository;
 
+session_start();
+if (empty($_SESSION['csrf'])) {
+    $_SESSION['csrf'] = bin2hex(random_bytes(32));
+}
+$csrf = $_SESSION['csrf'];
+
+function csrfOk(string $token): bool
+{
+    return isset($_SESSION['csrf']) && hash_equals($_SESSION['csrf'], $token);
+}
+
 $dbPath = __DIR__ . '/../data/taskflow.db';
 if (!file_exists($dbPath)) {
     $dbPath = __DIR__ . '/../data/taskflow.sqlite';
 }
 $needsInit = !file_exists($dbPath);
 $repo = new TaskRepository(Database::get($dbPath));
-
 if ($needsInit) {
-    $pdo = Database::get($dbPath);
-    $pdo->exec('CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, category TEXT NOT NULL, subcategory TEXT, priority INTEGER CHECK(priority BETWEEN 1 AND 3), due_at TEXT, done INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+    Database::get($dbPath)->exec('CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, category TEXT NOT NULL, subcategory TEXT, priority INTEGER CHECK(priority BETWEEN 1 AND 3), due_at TEXT, done INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
 }
 
 $categories = $repo->categories();
-
 $action = $_POST['action'] ?? $_GET['action'] ?? 'list';
 
-if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title'] ?? '');
-    $category = $_POST['category'] ?? '';
-    $subcategory = $_POST['subcategory'] ?? '';
-    $priority = (int) ($_POST['priority'] ?? 2);
-    $due = $_POST['due_at'] ?? '';
-    if ($title !== '' && isset($categories[$category])) {
-        $repo->create([
-            'title' => $title,
-            'category' => $category,
-            'subcategory' => in_array($subcategory, $categories[$category], true) ? $subcategory : null,
-            'priority' => max(1, min(3, $priority)),
-            'due_at' => $due,
-        ]);
-    }
-    header('Location: .');
-    exit;
+function normalizeTask(array $post): array
+{
+    global $categories;
+    $title = trim($post['title'] ?? '');
+    $category = $post['category'] ?? '';
+    $subcategory = $post['subcategory'] ?? '';
+    $priority = (int) ($post['priority'] ?? 2);
+    return [
+        'title' => $title,
+        'category' => $category,
+        'subcategory' => isset($categories[$category]) && in_array($subcategory, $categories[$category], true) ? $subcategory : null,
+        'priority' => max(1, min(3, $priority)),
+        'due_at' => $post['due_at'] ?? null,
+    ];
 }
 
-if ($action === 'done' && isset($_GET['id'])) {
-    $repo->markDone((int) $_GET['id']);
+if (in_array($action, ['create', 'update', 'delete', 'done'], true) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrfOk($_POST['csrf'] ?? '')) {
+        http_response_code(403);
+        exit('Forbidden');
+    }
+    $id = isset($_POST['id']) ? (int) $_POST['id'] : null;
+    if ($action === 'create') {
+        $repo->create(normalizeTask($_POST));
+    } elseif ($action === 'update' && $id) {
+        $repo->update($id, normalizeTask($_POST));
+    } elseif ($action === 'done' && $id) {
+        $repo->update($id, ['done' => 1]);
+    } elseif ($action === 'delete' && $id) {
+        $repo->delete($id);
+    }
     header('Location: .');
     exit;
 }
@@ -50,6 +68,10 @@ if ($action === 'done' && isset($_GET['id'])) {
 $filter = $_GET['category'] ?? null;
 $tasks = $repo->findIncomplete($filter);
 $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
+$editTask = null;
+if (($action === 'edit') && isset($_GET['id'])) {
+    $editTask = $repo->find((int) $_GET['id']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -88,7 +110,22 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
             </div>
           </div>
           <div class="task-actions">
-            <a class="done-btn" href="?action=done&id=<?= (int) $task['id'] ?>" title="Terminer">✓</a>
+            <button class="menu-btn" data-id="<?= (int) $task['id'] ?>" title="Actions">⋮</button>
+            <div class="task-menu" id="menu-<?= (int) $task['id'] ?>">
+              <form method="post" class="menu-item">
+                <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="action" value="done">
+                <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
+                <button type="submit">✓ Terminer</button>
+              </form>
+              <a class="menu-item" href="?action=edit&id=<?= (int) $task['id'] ?>">✎ Éditer</a>
+              <form method="post" class="menu-item" onsubmit="return confirm('Supprimer cette tâche ?');">
+                <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
+                <button type="submit" class="danger">✕ Supprimer</button>
+              </form>
+            </div>
           </div>
         </article>
       <?php endforeach; ?>
@@ -98,10 +135,12 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
   <button class="add-btn" id="openModal">+</button>
 
   <div class="overlay" id="modal">
-    <form method="post" action="?action=create" class="modal">
-      <input type="hidden" name="action" value="create">
-      <h3>Nouvelle tâche</h3>
-      <input type="text" name="title" placeholder="Que dois-tu faire ?" required autofocus>
+    <form method="post" action="?action=create" class="modal" id="taskForm">
+      <input type="hidden" name="action" id="formAction" value="create">
+      <input type="hidden" name="id" id="formId" value="">
+      <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+      <h3 id="modalTitle">Nouvelle tâche</h3>
+      <input type="text" name="title" id="title" placeholder="Que dois-tu faire ?" required autofocus>
       <select name="category" id="category" required>
         <option value="">Catégorie</option>
         <?php foreach ($categories as $cat => $_): ?>
@@ -112,17 +151,24 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
         <option value="">Sous-catégorie (optionnel)</option>
       </select>
       <div class="row">
-        <select name="priority">
+        <select name="priority" id="priority">
           <?php foreach ($priorities as $val => $label): ?>
-            <option value="<?= $val ?>" <?= $val === 2 ? 'selected' : '' ?>><?= $label ?></option>
+            <option value="<?= $val ?>"><?= $label ?></option>
           <?php endforeach; ?>
         </select>
-        <input type="date" name="due_at">
+        <input type="date" name="due_at" id="due_at">
       </div>
-      <button type="submit">Ajouter</button>
+      <button type="submit" id="submitBtn">Ajouter</button>
       <a href="#" class="close-modal" id="closeModal">Annuler</a>
     </form>
   </div>
+
+  <?php if ($editTask): ?>
+  <script>
+    window.editTask = <?= json_encode($editTask, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) ?>;
+    window.editSubcats = <?= json_encode($categories, JSON_UNESCAPED_UNICODE) ?>;
+  </script>
+  <?php endif; ?>
 
   <script>
     const subcats = <?= json_encode($categories, JSON_UNESCAPED_UNICODE) ?>;

@@ -42,6 +42,39 @@ final class TaskRepository
         return $stmt->fetchAll();
     }
 
+    public function find(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM tasks WHERE id = :id');
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function update(int $id, array $changes): void
+    {
+        $allowed = ['title', 'category', 'subcategory', 'priority', 'due_at', 'done'];
+        $fields = [];
+        $params = [];
+        foreach ($changes as $key => $value) {
+            if (!in_array($key, $allowed, true)) {
+                continue;
+            }
+            $fields[] = "$key = :$key";
+            $params[":$key"] = $value === '' ? null : $value;
+        }
+        if (empty($fields)) {
+            return;
+        }
+        $params[':id'] = $id;
+        $stmt = $this->pdo->prepare('UPDATE tasks SET ' . implode(', ', $fields) . ' WHERE id = :id');
+        $stmt->execute($params);
+    }
+
+    public function delete(int $id): void
+    {
+        $this->pdo->prepare('DELETE FROM tasks WHERE id = :id')->execute([':id' => $id]);
+    }
+
     /**
      * @return array<int, string[]>
      */
