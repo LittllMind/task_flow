@@ -320,7 +320,6 @@ header .count {
 }
 
 .action-form button,
-.action-form a.btn,
 a.btn,
 .btn {
   display: inline-flex;
@@ -339,3 +338,24 @@ a.btn,
 .btn-success { background: var(--success); }
 .btn-primary { background: var(--accent); color: var(--bg); }
 .btn-danger { background: var(--danger); }
+
+/* Horizontal action bar under task card */
+.task-card {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.task-content {
+  width: 100%;
+}
+
+.task-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  width: 100%;
+  border-top: 1px solid var(--surface-light);
+  padding-top: .5rem;
+  margin-top: .25rem;
+}
