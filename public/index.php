@@ -120,6 +120,7 @@ if (($action === 'edit') && isset($_GET['id'])) {
       <h1>TaskFlow</h1>
       <span class="count"><?= count($tasks) ?> tâche<?= count($tasks) > 1 ? 's' : '' ?></span>
       <a class="admin-link" href="admin.php" title="Gérer les catégories">⚙</a>
+      <a class="admin-link" href="stats.php" title="Statistiques">◔</a>
     </header>
 
     <nav class="filters">
@@ -145,6 +146,7 @@ if (($action === 'edit') && isset($_GET['id'])) {
             <div class="task-meta">
               <span class="chip"><?= htmlspecialchars($task['category']) ?><?= $task['subcategory'] ? ' · ' . htmlspecialchars($task['subcategory']) : '' ?></span>
               <?php if ($task['due_at']): ?><span class="chip due-chip"><?= htmlspecialchars($task['due_at']) ?></span><?php endif; ?>
+              <?php if ($repo->isOverdue((int) $task['id'])): ?><span class="chip overdue-chip">En retard</span><?php endif; ?>
               <?php if ($view === 'done' && $task['done_at']): ?><span class="chip">Terminée <?= htmlspecialchars(date('d/m/Y', strtotime($task['done_at']))) ?></span><?php endif; ?>
             </div>
           </div>

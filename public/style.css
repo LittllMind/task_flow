@@ -390,3 +390,67 @@ a.btn,
   color: var(--muted);
   text-decoration: none;
 }
+
+
+.overdue-chip {
+  background: rgba(244, 63, 94, .2);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+header h1 {
+  margin: 0;
+}
+
+header .admin-link {
+  margin-left: auto;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat-card {
+  background: var(--surface);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.stat-card.overdue {
+  background: rgba(244, 63, 94, .15);
+}
+
+.stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: .875rem;
+}
+
+.pin-msg,
+.error {
+  color: var(--danger);
+  font-size: .875rem;
+}
+
+.logout-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .875rem;
+}

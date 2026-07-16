@@ -31,10 +31,26 @@ if (!file_exists($dbPath)) {
         $dbPath = __DIR__ . '/../data/taskflow.sqlite';
     }
 }
+require __DIR__ . '/../src/Config.php';
+requirePin();
 $repo = new TaskRepository(Database::get($dbPath));
 
+if (isset($_GET['export_csv'])) {
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=taskflow.csv');
+    $tasks = $repo->findIncomplete();
+    $tasks = array_merge($tasks, $repo->findDone());
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['id', 'title', 'category', 'subcategory', 'priority', 'due_at', 'done', 'done_at', 'created_at']);
+    foreach ($tasks as $t) {
+        fputcsv($out, [$t['id'], $t['title'], $t['category'], $t['subcategory'], $t['priority'], $t['due_at'], $t['done'], $t['done_at'], $t['created_at']]);
+    }
+    fclose($out);
+    exit;
+}
+
 $action = $_POST['action'] ?? '';
-if (in_array($action, ['add_category', 'remove_category', 'add_subcategory', 'remove_subcategory'], true) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if (in_array($action, ['add_category', 'remove_category', 'add_subcategory', 'remove_subcategory', 'change_pin'], true) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfOk($_POST['csrf'] ?? '')) {
         http_response_code(403);
         exit('Forbidden');
@@ -47,6 +63,12 @@ if (in_array($action, ['add_category', 'remove_category', 'add_subcategory', 're
         $repo->addSubcategory($_POST['category'], $_POST['subcategory']);
     } elseif ($action === 'remove_subcategory' && !empty($_POST['category']) && isset($_POST['subcategory'])) {
         $repo->removeSubcategory($_POST['category'], $_POST['subcategory']);
+    } elseif ($action === 'change_pin' && !empty($_POST['pin']) && $_POST['pin'] === ($_POST['pin_confirm'] ?? '')) {
+        if (setPin($_POST['pin'])) {
+            $_SESSION['pin_msg'] = 'PIN mis à jour.';
+        } else {
+            $_SESSION['pin_msg'] = 'PIN invalide.';
+        }
     }
     header('Location: admin.php');
     exit;
@@ -80,9 +102,22 @@ $categories = cleanEmpty($categories);
   <div class="container">
     <header>
       <h1>Catégories</h1>
+      <a class="logout-link" href="?export_csv=1">Export CSV</a>
+      <a class="logout-link" href="logout.php">Déconnexion</a>
     </header>
 
     <div class="admin-section">
+      <h2>Changer le PIN</h2>
+      <form method="post" class="admin-form">
+        <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="action" value="change_pin">
+        <input type="password" name="pin" inputmode="numeric" maxlength="4" placeholder="Nouveau PIN 4 chiffres" required>
+        <input type="password" name="pin_confirm" inputmode="numeric" maxlength="4" placeholder="Confirmer" required>
+        <button type="submit">Changer</button>
+      </form>
+      <?php if (!empty($_SESSION['pin_msg'])): ?><p class="pin-msg"><?= htmlspecialchars($_SESSION['pin_msg']); unset($_SESSION['pin_msg']); ?></p><?php endif; ?>
+    </div>
+<div class="admin-section">
       <h2>Ajouter une catégorie</h2>
       <form method="post" class="admin-form">
         <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">

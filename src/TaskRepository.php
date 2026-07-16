@@ -127,7 +127,8 @@ final class TaskRepository
             $sql .= ' AND category = :category';
             $params[':category'] = $category;
         }
-        $sql .= ' ORDER BY due_at IS NULL, due_at ASC, priority ASC';
+        $sql .= ' ORDER BY due_at IS NULL, due_at < :today, (CASE WHEN due_at < DATE(\'now\') THEN 0 ELSE 1 END) ASC, due_at ASC, priority ASC';
+        $params[':today'] = date('Y-m-d');
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
@@ -138,6 +139,23 @@ final class TaskRepository
         $stmt = $this->pdo->prepare('SELECT * FROM tasks WHERE done = 1 ORDER BY done_at DESC');
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    public function isOverdue(int $id): bool
+    {
+        $task = $this->find($id);
+        if (!$task || empty($task['due_at']) || (int) $task['done'] === 1) {
+            return false;
+        }
+        return $task['due_at'] < date('Y-m-d');
+    }
+
+    public function stats(): array
+    {
+        $total = (int) $this->pdo->query('SELECT COUNT(*) FROM tasks WHERE done = 0')->fetchColumn();
+        $overdue = (int) $this->pdo->prepare('SELECT COUNT(*) FROM tasks WHERE done = 0 AND due_at IS NOT NULL AND due_at < DATE(\'now\')')->fetchColumn();
+        $done = (int) $this->pdo->query('SELECT COUNT(*) FROM tasks WHERE done = 1')->fetchColumn();
+        return ['total' => $total, 'overdue' => $overdue, 'done' => $done];
     }
 
     public function find(int $id): ?array

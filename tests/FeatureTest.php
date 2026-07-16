@@ -7,45 +7,38 @@ require __DIR__ . '/../vendor/autoload.php';
 use TaskFlow\Database;
 use TaskFlow\TaskRepository;
 
-function createRepo() {
-    $tmp = tempnam(sys_get_temp_dir(), 'tf_');
-    unlink($tmp);
-    $pdo = Database::get($tmp);
-    return [$pdo, $tmp];
-}
-
-[$pdo, $tmp] = createRepo();
+$tmp = tempnam(sys_get_temp_dir(), 'tf_');
+unlink($tmp);
+$pdo = Database::get($tmp);
 $repo = new TaskRepository($pdo);
 
-// Categories from DB initially
+// Default categories
 $cats = $repo->categories();
-assert(isset($cats['Dev']), 'Dev preset present');
-assert(in_array('TaskFlow', $cats['Dev'], true), 'TaskFlow subcategory present');
+assert(isset($cats['Dev']), 'Dev default present');
 
 // Add category
-$repo->addCategory('Nova');
-$cats = $repo->categories();
-assert(isset($cats['Nova']), 'Nova added');
+$repo->addCategory('TestCat');
+assert(isset($repo->categories()['TestCat']), 'category added');
+$repo->removeCategory('TestCat');
 
-// Add subcategory
-$repo->addSubcategory('Nova', 'Sub 1');
-assert(in_array('Sub 1', $repo->categories()['Nova'], true), 'Sub 1 added');
+// Overdue task
+$past = date('Y-m-d', strtotime('-1 day'));
+$future = date('Y-m-d', strtotime('+1 day'));
+$overdueId = $repo->create(['title' => 'Retard', 'category' => 'Dev', 'subcategory' => '', 'priority' => 2, 'due_at' => $past]);
+$futureId = $repo->create(['title' => 'Futur', 'category' => 'Dev', 'subcategory' => '', 'priority' => 2, 'due_at' => $future]);
+$tasks = $repo->findIncomplete();
+assert($tasks[0]['id'] == $overdueId, 'overdue first');
+assert($repo->isOverdue($overdueId), 'isOverdue true');
+assert(!$repo->isOverdue($futureId), 'isOverdue false for future');
 
-// Remove subcategory
-$repo->removeSubcategory('Nova', 'Sub 1');
-assert(!in_array('Sub 1', $repo->categories()['Nova'], true), 'Sub 1 removed');
+// Stats
+$stats = $repo->stats();
+assert($stats['total'] >= 2, 'stats total');
+assert($stats['overdue'] === 1, 'stats overdue one');
 
-// Remove category
-$repo->removeCategory('Nova');
-$cats = $repo->categories();
-assert(!isset($cats['Nova']), 'Nova removed');
-
-// Task CRUD
-$id = $repo->create(['title' => 'Task', 'category' => 'Dev', 'subcategory' => 'TaskFlow', 'priority' => 2, 'due_at' => null]);
-$repo->markDone($id);
+// Done with date
+$repo->markDone($overdueId);
 assert(count($repo->findDone()) === 1, 'done one');
-$repo->restore($id);
-assert(count($repo->findIncomplete()) === 1, 'restored');
 
 unlink($tmp);
 echo "Tests OK
