@@ -1,3 +1,0 @@
-RewriteEngine On
-RewriteRule ^(src|vendor|data|composer\.json|composer\.lock|taskflow\.sqlite)(/.*)?$ - [F,L]
-Options -Indexes
