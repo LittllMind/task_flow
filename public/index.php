@@ -1,7 +1,11 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
+$vendorPath = __DIR__ . '/vendor/autoload.php';
+if (!file_exists($vendorPath)) {
+    $vendorPath = __DIR__ . '/../vendor/autoload.php';
+}
+require $vendorPath;
 
 use TaskFlow\Database;
 use TaskFlow\TaskRepository;
@@ -17,9 +21,15 @@ function csrfOk(string $token): bool
     return isset($_SESSION['csrf']) && hash_equals($_SESSION['csrf'], $token);
 }
 
-$dbPath = __DIR__ . '/../data/taskflow.db';
+$dbPath = __DIR__ . '/taskflow.db';
 if (!file_exists($dbPath)) {
-    $dbPath = __DIR__ . '/../data/taskflow.sqlite';
+    $dbPath = __DIR__ . '/taskflow.sqlite';
+    if (!file_exists($dbPath)) {
+        $dbPath = __DIR__ . '/../data/taskflow.db';
+    }
+    if (!file_exists($dbPath)) {
+        $dbPath = __DIR__ . '/../data/taskflow.sqlite';
+    }
 }
 $needsInit = !file_exists($dbPath);
 $repo = new TaskRepository(Database::get($dbPath));

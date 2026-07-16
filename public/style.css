@@ -258,3 +258,59 @@ header .count {
   text-decoration: none;
   font-size: .85rem;
 }
+
+.task-actions {
+  position: relative;
+}
+
+.menu-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: .25rem;
+}
+
+.task-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 2.2rem;
+  background: var(--surface-light);
+  border-radius: .5rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  min-width: 130px;
+  z-index: 20;
+  padding: .25rem 0;
+  flex-direction: column;
+}
+
+.task-menu.open {
+  display: flex;
+}
+
+.task-menu .menu-item,
+.task-menu .menu-item form,
+.task-menu .menu-item a,
+.task-menu .menu-item button {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: .5rem .75rem;
+  color: var(--text);
+  text-decoration: none;
+  font-size: .85rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.task-menu .menu-item:hover {
+  background: var(--surface);
+}
+
+.task-menu .menu-item button.danger {
+  color: var(--danger);
+}
