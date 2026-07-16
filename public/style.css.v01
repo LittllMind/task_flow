@@ -1,0 +1,130 @@
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f6f7f9;
+  margin: 0;
+  padding: 1rem;
+  color: #222;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+}
+
+.task-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: .5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  margin-bottom: 1rem;
+}
+
+.task-form input, .task-form select, .task-form button {
+  padding: .5rem .75rem;
+  border: 1px solid #d1d5db;
+  border-radius: .375rem;
+  font-size: 1rem;
+}
+
+.task-form input[name="title"] {
+  flex: 1 1 100%;
+}
+
+.task-form select, .task-form input[type=date] {
+  flex: 1 1 auto;
+}
+
+.task-form button {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+  cursor: pointer;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.filters a {
+  padding: .35rem .75rem;
+  background: #fff;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #444;
+  font-size: .875rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+.filters a.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.task-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: .75rem 1rem;
+  border-radius: .5rem;
+  margin-bottom: .5rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+.task-list li.empty {
+  justify-content: center;
+  color: #6b7280;
+}
+
+li.priority-1 { border-left: 4px solid #ef4444; }
+li.priority-2 { border-left: 4px solid #f59e0b; }
+li.priority-3 { border-left: 4px solid #22c55e; }
+
+.task-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.title { font-weight: 600; }
+.meta { font-size: .8rem; color: #6b7280; margin-top: .15rem; }
+
+.task-side {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.due {
+  font-size: .8rem;
+  color: #4b5563;
+}
+
+.done {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: #22c55e;
+  color: #fff;
+  border-radius: 999px;
+  text-decoration: none;
+}

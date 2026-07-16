@@ -1,0 +1,8 @@
+{
+    "name": "taskflow/mvp",
+    "autoload": {
+        "psr-4": {
+            "TaskFlow\\": "src/"
+        }
+    }
+}

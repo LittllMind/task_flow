@@ -1,0 +1,160 @@
+[Thu Jul 16 13:22:52 2026] PHP 8.3.30 Development Server (http://127.0.0.1:8082) started
+[Thu Jul 16 13:22:53 2026] 127.0.0.1:49558 Accepted
+[Thu Jul 16 13:22:53 2026] 127.0.0.1:49558 [200]: GET /
+[Thu Jul 16 13:22:53 2026] 127.0.0.1:49558 Closing
+[Thu Jul 16 13:22:53 2026] 127.0.0.1:49562 Accepted
+[Thu Jul 16 13:22:53 2026] 127.0.0.1:49562 [200]: HEAD /
+[Thu Jul 16 13:22:53 2026] 127.0.0.1:49562 Closing
+[Thu Jul 16 13:25:02 2026] 127.0.0.1:51564 Accepted
+[Thu Jul 16 13:25:02 2026] 127.0.0.1:51564 [302]: POST /?action=create
+[Thu Jul 16 13:25:02 2026] 127.0.0.1:51564 Closing
+[Thu Jul 16 13:25:02 2026] 127.0.0.1:51566 Accepted
+[Thu Jul 16 13:25:02 2026] 127.0.0.1:51566 [200]: GET /
+[Thu Jul 16 13:25:02 2026] 127.0.0.1:51566 Closing
+[Thu Jul 16 13:25:06 2026] 127.0.0.1:55262 Accepted
+[Thu Jul 16 13:25:06 2026] 127.0.0.1:55262 [302]: GET /?action=done&id=1
+[Thu Jul 16 13:25:06 2026] 127.0.0.1:55262 Closing
+[Thu Jul 16 13:25:06 2026] 127.0.0.1:55266 Accepted
+[Thu Jul 16 13:25:06 2026] 127.0.0.1:55266 [200]: GET /
+[Thu Jul 16 13:25:06 2026] 127.0.0.1:55266 Closing
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39964 Accepted
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39964 [200]: GET /
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39964 Closing
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39974 Accepted
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39974 [200]: GET /style.css
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39974 Closing
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39986 Accepted
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39986 [200]: GET /app.js
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39986 Closing
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39996 Accepted
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39996 [404]: GET /favicon.ico - No such file or directory
+[Thu Jul 16 13:58:54 2026] 127.0.0.1:39996 Closing
+[Thu Jul 16 13:58:57 2026] 127.0.0.1:39998 Accepted
+[Thu Jul 16 13:59:02 2026] 127.0.0.1:39998 Closed without sending a request; it was probably just an unused speculative preconnection
+[Thu Jul 16 13:59:02 2026] 127.0.0.1:39998 Closing
+[Thu Jul 16 14:00:20 2026] 127.0.0.1:59248 Accepted
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59248 [200]: GET /
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59248 Closing
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59260 Accepted
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59260 [200]: GET /style.css
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59260 Closing
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59272 Accepted
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59272 [200]: GET /app.js
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59272 Closing
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59280 Accepted
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59280 [404]: GET /favicon.ico - No such file or directory
+[Thu Jul 16 14:00:21 2026] 127.0.0.1:59280 Closing
+[Thu Jul 16 14:00:30 2026] 127.0.0.1:40980 Accepted
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40980 [200]: GET /?category=Perso
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40980 Closing
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40984 Accepted
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40984 [200]: GET /style.css
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40984 Closing
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40992 Accepted
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40992 [200]: GET /app.js
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40992 Closing
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40998 Accepted
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40998 [200]: GET /?category=Pro
+[Thu Jul 16 14:00:31 2026] 127.0.0.1:40998 Closing
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41012 Accepted
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41012 [200]: GET /style.css
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41012 Closing
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41022 Accepted
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41022 [200]: GET /app.js
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41022 Closing
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41032 Accepted
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41032 [200]: GET /?category=Dev
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41032 Closing
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41046 Accepted
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41046 [200]: GET /style.css
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41046 Closing
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41062 Accepted
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41062 [200]: GET /app.js
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41062 Closing
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41076 Accepted
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41076 [200]: GET /?category=Veille
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41076 Closing
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41084 Accepted
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41084 [200]: GET /style.css
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41084 Closing
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41100 Accepted
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41100 [200]: GET /app.js
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41100 Closing
+[Thu Jul 16 14:00:32 2026] 127.0.0.1:41116 Accepted
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41116 [200]: GET /?category=Foncier
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41116 Closing
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41132 Accepted
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41132 [200]: GET /style.css
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41132 Closing
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41134 Accepted
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41134 [200]: GET /app.js
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41134 Closing
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41148 Accepted
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41148 [200]: GET /?category=Projets
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:41148 Closing
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:37518 Accepted
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:37518 [200]: GET /style.css
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:37518 Closing
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:37522 Accepted
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:37522 [200]: GET /app.js
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:37522 Closing
+[Thu Jul 16 14:00:33 2026] 127.0.0.1:37530 Accepted
+[Thu Jul 16 14:00:34 2026] 127.0.0.1:37530 [200]: GET /?category=Administratif
+[Thu Jul 16 14:00:34 2026] 127.0.0.1:37530 Closing
+[Thu Jul 16 14:00:34 2026] 127.0.0.1:37544 Accepted
+[Thu Jul 16 14:00:34 2026] 127.0.0.1:37544 [200]: GET /style.css
+[Thu Jul 16 14:00:34 2026] 127.0.0.1:37544 Closing
+[Thu Jul 16 14:00:34 2026] 127.0.0.1:37554 Accepted
+[Thu Jul 16 14:00:34 2026] 127.0.0.1:37554 [200]: GET /app.js
+[Thu Jul 16 14:00:34 2026] 127.0.0.1:37554 Closing
+[Thu Jul 16 14:00:34 2026] 127.0.0.1:37558 Accepted
+[Thu Jul 16 14:00:39 2026] 127.0.0.1:37558 Closed without sending a request; it was probably just an unused speculative preconnection
+[Thu Jul 16 14:00:39 2026] 127.0.0.1:37558 Closing
+[Thu Jul 16 14:00:40 2026] 127.0.0.1:37572 Accepted
+[Thu Jul 16 14:00:45 2026] 127.0.0.1:37572 Closed without sending a request; it was probably just an unused speculative preconnection
+[Thu Jul 16 14:00:45 2026] 127.0.0.1:37572 Closing
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52844 Accepted
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52844 [302]: POST /?action=create
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52844 Closing
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52846 Accepted
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52846 [200]: GET /
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52846 Closing
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52858 Accepted
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52858 [200]: GET /style.css
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52868 Accepted
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52858 Closing
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52868 [200]: GET /app.js
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52868 Closing
+[Thu Jul 16 14:00:55 2026] 127.0.0.1:52882 Accepted
+[Thu Jul 16 14:01:01 2026] 127.0.0.1:52882 Closed without sending a request; it was probably just an unused speculative preconnection
+[Thu Jul 16 14:01:01 2026] 127.0.0.1:52882 Closing
+[Thu Jul 16 14:06:13 2026] 127.0.0.1:46560 Accepted
+[Thu Jul 16 14:06:13 2026] 127.0.0.1:46560 [200]: GET /
+[Thu Jul 16 14:06:13 2026] 127.0.0.1:46560 Closing
+[Thu Jul 16 14:13:52 2026] 127.0.0.1:41334 Accepted
+[Thu Jul 16 14:13:52 2026] 127.0.0.1:41334 [200]: GET /
+[Thu Jul 16 14:13:52 2026] 127.0.0.1:41334 Closing
+[Thu Jul 16 14:13:52 2026] 127.0.0.1:41342 Accepted
+[Thu Jul 16 14:13:52 2026] 127.0.0.1:41342 [200]: GET /style.css
+[Thu Jul 16 14:13:52 2026] 127.0.0.1:41342 Closing
+[Thu Jul 16 14:13:52 2026] 127.0.0.1:41350 Accepted
+[Thu Jul 16 14:13:52 2026] 127.0.0.1:41350 [200]: GET /app.js
+[Thu Jul 16 14:13:52 2026] 127.0.0.1:41350 Closing
+[Thu Jul 16 14:13:53 2026] 127.0.0.1:41352 Accepted
+[Thu Jul 16 14:13:53 2026] 127.0.0.1:41352 [404]: GET /favicon.ico - No such file or directory
+[Thu Jul 16 14:13:53 2026] 127.0.0.1:41352 Closing
+[Thu Jul 16 14:14:11 2026] 127.0.0.1:59970 Accepted
+[Thu Jul 16 14:14:16 2026] 127.0.0.1:59970 Closed without sending a request; it was probably just an unused speculative preconnection
+[Thu Jul 16 14:14:16 2026] 127.0.0.1:59970 Closing
+[Thu Jul 16 16:39:02 2026] 127.0.0.1:55778 Accepted
+[Thu Jul 16 16:39:02 2026] 127.0.0.1:55778 [200]: GET /
+[Thu Jul 16 16:39:02 2026] 127.0.0.1:55778 Closing
+[Thu Jul 16 16:39:02 2026] 127.0.0.1:55794 Accepted
+[Thu Jul 16 16:39:02 2026] 127.0.0.1:55794 [200]: GET /style.css
+[Thu Jul 16 16:39:02 2026] 127.0.0.1:55794 Closing
+[Thu Jul 16 16:39:02 2026] 127.0.0.1:55808 Accepted
+[Thu Jul 16 16:39:02 2026] 127.0.0.1:55808 [200]: GET /app.js
+[Thu Jul 16 16:39:02 2026] 127.0.0.1:55808 Closing
+[Thu Jul 16 16:39:03 2026] 127.0.0.1:55376 Accepted
+[Thu Jul 16 16:39:03 2026] 127.0.0.1:55376 [404]: GET /favicon.ico - No such file or directory
+[Thu Jul 16 16:39:03 2026] 127.0.0.1:55376 Closing
