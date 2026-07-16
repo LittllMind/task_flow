@@ -42,6 +42,13 @@ final class TaskRepository
         return $stmt->fetchAll();
     }
 
+    public function findDone(): array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM tasks WHERE done = 1 ORDER BY done_at DESC');
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
     public function find(int $id): ?array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM tasks WHERE id = :id');
@@ -52,7 +59,7 @@ final class TaskRepository
 
     public function update(int $id, array $changes): void
     {
-        $allowed = ['title', 'category', 'subcategory', 'priority', 'due_at', 'done'];
+        $allowed = ['title', 'category', 'subcategory', 'priority', 'due_at', 'done', 'done_at'];
         $fields = [];
         $params = [];
         foreach ($changes as $key => $value) {
@@ -68,6 +75,16 @@ final class TaskRepository
         $params[':id'] = $id;
         $stmt = $this->pdo->prepare('UPDATE tasks SET ' . implode(', ', $fields) . ' WHERE id = :id');
         $stmt->execute($params);
+    }
+
+    public function restore(int $id): void
+    {
+        $this->update($id, ['done' => 0, 'done_at' => null]);
+    }
+
+    public function markDone(int $id): void
+    {
+        $this->update($id, ['done' => 1, 'done_at' => date('Y-m-d H:i:s')]);
     }
 
     public function delete(int $id): void
@@ -89,10 +106,5 @@ final class TaskRepository
             'Projets' => ['Bougies', 'VINYLS', 'Fundisc'],
             'Administratif' => ['Impôt', 'Banque', 'Assurance'],
         ];
-    }
-
-    public function markDone(int $id): void
-    {
-        $this->pdo->prepare('UPDATE tasks SET done = 1 WHERE id = :id')->execute([':id' => $id]);
     }
 }

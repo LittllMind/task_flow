@@ -32,9 +32,18 @@ if (!file_exists($dbPath)) {
     }
 }
 $needsInit = !file_exists($dbPath);
-$repo = new TaskRepository(Database::get($dbPath));
+$pdo = Database::get($dbPath);
+$repo = new TaskRepository($pdo);
+
 if ($needsInit) {
-    Database::get($dbPath)->exec('CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, category TEXT NOT NULL, subcategory TEXT, priority INTEGER CHECK(priority BETWEEN 1 AND 3), due_at TEXT, done INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+    $pdo->exec('CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, category TEXT NOT NULL, subcategory TEXT, priority INTEGER CHECK(priority BETWEEN 1 AND 3), due_at TEXT, done INTEGER DEFAULT 0, done_at TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+}
+
+// Migrate existing DB to add done_at if missing
+try {
+    $pdo->exec('ALTER TABLE tasks ADD COLUMN done_at TEXT');
+} catch (\PDOException $e) {
+    // ignore if column exists
 }
 
 $categories = $repo->categories();
@@ -56,7 +65,13 @@ function normalizeTask(array $post): array
     ];
 }
 
-if (in_array($action, ['create', 'update', 'delete', 'done'], true) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+function faviconColor(): string
+{
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    return str_contains($host, '10001mb.com') ? '#f43f5e' : '#22d3ee';
+}
+
+if (in_array($action, ['create', 'update', 'delete', 'done', 'restore'], true) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfOk($_POST['csrf'] ?? '')) {
         http_response_code(403);
         exit('Forbidden');
@@ -67,7 +82,9 @@ if (in_array($action, ['create', 'update', 'delete', 'done'], true) && $_SERVER[
     } elseif ($action === 'update' && $id) {
         $repo->update($id, normalizeTask($_POST));
     } elseif ($action === 'done' && $id) {
-        $repo->update($id, ['done' => 1]);
+        $repo->markDone($id);
+    } elseif ($action === 'restore' && $id) {
+        $repo->restore($id);
     } elseif ($action === 'delete' && $id) {
         $repo->delete($id);
     }
@@ -75,8 +92,12 @@ if (in_array($action, ['create', 'update', 'delete', 'done'], true) && $_SERVER[
     exit;
 }
 
+$view = $_GET['view'] ?? 'todo';
+if ($view !== 'done') {
+    $view = 'todo';
+}
 $filter = $_GET['category'] ?? null;
-$tasks = $repo->findIncomplete($filter);
+$tasks = $view === 'todo' ? $repo->findIncomplete($filter) : $repo->findDone();
 $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
 $editTask = null;
 if (($action === 'edit') && isset($_GET['id'])) {
@@ -84,92 +105,110 @@ if (($action === 'edit') && isset($_GET['id'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang=\"fr\">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset=\"UTF-8\">
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
   <title>TaskFlow</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2322d3ee'/%3E%3Ctext x='50' y='68' font-size='55' text-anchor='middle' fill='%230f172a'%3E✓%3C/text%3E%3C/svg%3E">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel=\"stylesheet\" href=\"style.css\">
+  <link rel=\"icon\" href=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%3C?= urlencode(faviconColor()) ?%3E'/%3E%3Ctext x='50' y='68' font-size='55' text-anchor='middle' fill='%230f172a'%3E✓%3C/text%3E%3C/svg%3E\">
+  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700\u0026display=swap\" rel=\"stylesheet\">
 </head>
 <body>
-  <div class="container">
+  <div class=\"container\">
     <header>
       <h1>TaskFlow</h1>
-      <span class="count"><?= count($tasks) ?> tâche<?= count($tasks) > 1 ? 's' : '' ?></span>
+      <span class=\"count\"><?= count($tasks) ?> tâche<?= count($tasks) > 1 ? 's' : '' ?></span>
     </header>
 
-    <nav class="filters">
-      <a href="." class="<?= $filter === null ? 'active' : '' ?>">Toutes</a>
+    <nav class=\"filters\">
+      <a href=\".\" class=\"<?= $filter === null ? 'active' : '' ?>\">Toutes</a>
       <?php foreach ($categories as $cat => $_): ?>
-        <a href="?category=<?= urlencode($cat) ?>" class="<?= $filter === $cat ? 'active' : '' ?>"><?= htmlspecialchars($cat) ?></a>
+        <a href=\"?category=<?= urlencode($cat) ?><?= $view === 'done' ? '&view=done' : '' ?>\" class=\"<?= $filter === $cat ? 'active' : '' ?>\"><?= htmlspecialchars($cat) ?></a>
       <?php endforeach; ?>
     </nav>
 
-    <div class="stack">
+    <div class=\"view-toggle\">
+      <a href=\".\" class=\"<?= $view === 'todo' ? 'active' : '' ?>\">À faire</a>
+      <a href=\"?view=done\" class=\"<?= $view === 'done' ? 'active' : '' ?>\">Terminées</a>
+    </div>
+
+    <div class=\"stack\">
       <?php if (empty($tasks)): ?>
-        <p class="empty">Aucune tâche en cours.</p>
+        <p class=\"empty\"><?= $view === 'todo' ? 'Aucune tâche en cours.' : 'Aucune tâche terminée.' ?></p>
       <?php endif; ?>
       <?php foreach ($tasks as $task): ?>
-        <article class="task-card priority-<?= (int) $task['priority'] ?>">
-          <div class="task-content">
+        <article class=\"task-card priority-<?= (int) $task['priority'] ?> <?= $view === 'done' ? 'done' : '' ?>\">
+          <div class=\"task-content\">
             <h2><?= htmlspecialchars($task['title'], ENT_QUOTES, 'UTF-8') ?></h2>
-            <div class="task-meta">
-              <span class="chip"><?= htmlspecialchars($task['category']) ?><?= $task['subcategory'] ? ' · ' . htmlspecialchars($task['subcategory']) : '' ?></span>
-              <?php if ($task['due_at']): ?><span class="chip due-chip"><?= htmlspecialchars($task['due_at']) ?></span><?php endif; ?>
+            <div class=\"task-meta\">
+              <span class=\"chip\"><?= htmlspecialchars($task['category']) ?><?= $task['subcategory'] ? ' · ' . htmlspecialchars($task['subcategory']) : '' ?></span>
+              <?php if ($task['due_at']): ?><span class=\"chip due-chip\"><?= htmlspecialchars($task['due_at']) ?></span><?php endif; ?>
+              <?php if ($view === 'done' && $task['done_at']): ?><span class=\"chip\">Terminée <?= htmlspecialchars(date('d/m/Y', strtotime($task['done_at']))) ?></span><?php endif; ?>
             </div>
           </div>
-          <div class="task-actions">
-            <form method="post" class="action-form">
-              <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
-              <input type="hidden" name="action" value="done">
-              <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
-              <button type="submit" class="btn btn-success" title="Terminer">✓</button>
+          <div class=\"task-actions\">
+            <?php if ($view === 'todo'): ?>
+              <form method=\"post\" class=\"action-form\">
+                <input type=\"hidden\" name=\"csrf\" value=\"<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>\">
+                <input type=\"hidden\" name=\"action\" value=\"done\">
+                <input type=\"hidden\" name=\"id\" value=\"<?= (int) $task['id'] ?>\">
+                <button type=\"submit\" class=\"btn btn-success\" title=\"Terminer\">✓</button>
+              </form>
+              <a class=\"btn btn-primary\" href=\"?action=edit&id=<?= (int) $task['id'] ?>\" title=\"Éditer\">✎</a>
+            <?php endif; ?>
+            <form method=\"post\" class=\"action-form\" onsubmit=\"return confirm('Supprimer cette tâche ?');\">
+              <input type=\"hidden\" name=\"csrf\" value=\"<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>\">
+              <input type=\"hidden\" name=\"action\" value=\"delete\">
+              <input type=\"hidden\" name=\"id\" value=\"<?= (int) $task['id'] ?>\">
+              <button type=\"submit\" class=\"btn btn-danger\" title=\"Supprimer\">✕</button>
             </form>
-            <a class="btn btn-primary" href="?action=edit&id=<?= (int) $task['id'] ?>" title="Éditer">✎</a>
-            <form method="post" class="action-form" onsubmit="return confirm('Supprimer cette tâche ?');">
-              <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
-              <input type="hidden" name="action" value="delete">
-              <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
-              <button type="submit" class="btn btn-danger" title="Supprimer">✕</button>
-            </form>
+            <?php if ($view === 'done'): ?>
+              <form method=\"post\" class=\"action-form\">
+                <input type=\"hidden\" name=\"csrf\" value=\"<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>\">
+                <input type=\"hidden\" name=\"action\" value=\"restore\">
+                <input type=\"hidden\" name=\"id\" value=\"<?= (int) $task['id'] ?>\">
+                <button type=\"submit\" class=\"btn btn-primary\" title=\"Remettre en cours\">↺</button>
+              </form>
+            <?php endif; ?>
           </div>
         </article>
       <?php endforeach; ?>
     </div>
   </div>
 
-  <button class="add-btn" id="openModal">+</button>
+  <?php if ($view === 'todo'): ?>
+  <button class=\"add-btn\" id=\"openModal\">+</button>
 
-  <div class="overlay" id="modal">
-    <form method="post" action="?action=create" class="modal" id="taskForm">
-      <input type="hidden" name="action" id="formAction" value="create">
-      <input type="hidden" name="id" id="formId" value="">
-      <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
-      <h3 id="modalTitle">Nouvelle tâche</h3>
-      <input type="text" name="title" id="title" placeholder="Que dois-tu faire ?" required autofocus>
-      <select name="category" id="category" required>
-        <option value="">Catégorie</option>
+  <div class=\"overlay\" id=\"modal\">
+    <form method=\"post\" action=\"?action=create\" class=\"modal\" id=\"taskForm\">
+      <input type=\"hidden\" name=\"action\" id=\"formAction\" value=\"create\">
+      <input type=\"hidden\" name=\"id\" id=\"formId\" value=\"\">
+      <input type=\"hidden\" name=\"csrf\" value=\"<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>\">
+      <h3 id=\"modalTitle\">Nouvelle tâche</h3>
+      <input type=\"text\" name=\"title\" id=\"title\" placeholder=\"Que dois-tu faire ?\" required autofocus>
+      <select name=\"category\" id=\"category\" required>
+        <option value=\"\">Catégorie</option>
         <?php foreach ($categories as $cat => $_): ?>
-          <option value="<?= htmlspecialchars($cat, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($cat) ?></option>
+          <option value=\"<?= htmlspecialchars($cat, ENT_QUOTES, 'UTF-8') ?>\"><?= htmlspecialchars($cat) ?></option>
         <?php endforeach; ?>
       </select>
-      <select name="subcategory" id="subcategory">
-        <option value="">Sous-catégorie (optionnel)</option>
+      <select name=\"subcategory\" id=\"subcategory\">
+        <option value=\"\">Sous-catégorie (optionnel)</option>
       </select>
-      <div class="row">
-        <select name="priority" id="priority">
+      <div class=\"row\">
+        <select name=\"priority\" id=\"priority\">
           <?php foreach ($priorities as $val => $label): ?>
-            <option value="<?= $val ?>"><?= $label ?></option>
+            <option value=\"<?= $val ?>\"><?= $label ?></option>
           <?php endforeach; ?>
         </select>
-        <input type="date" name="due_at" id="due_at">
+        <input type=\"date\" name=\"due_at\" id=\"due_at\">
       </div>
-      <button type="submit" id="submitBtn">Ajouter</button>
-      <a href="#" class="close-modal" id="closeModal">Annuler</a>
+      <button type=\"submit\" id=\"submitBtn\">Ajouter</button>
+      <a href=\"#\" class=\"close-modal\" id=\"closeModal\">Annuler</a>
     </form>
   </div>
+  <?php endif; ?>
 
   <?php if ($editTask): ?>
   <script>
@@ -181,6 +220,6 @@ if (($action === 'edit') && isset($_GET['id'])) {
   <script>
     const subcats = <?= json_encode($categories, JSON_UNESCAPED_UNICODE) ?>;
   </script>
-  <script src="app.js"></script>
+  <script src=\"app.js\"></script>
 </body>
 </html>
