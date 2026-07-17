@@ -16,9 +16,32 @@ $repo = new TaskRepository($pdo);
 $cats = $repo->categories();
 assert(isset($cats['Dev']), 'Dev default present');
 
-// Add category
-$repo->addCategory('TestCat');
-assert(isset($repo->categories()['TestCat']), 'category added');
+// Default categories have multiple subcategories
+$cats = $repo->categories();
+foreach (['Perso' => ['Courses','Santé','Famille'], 'Dev' => ['TaskFlow','Matricothèque','LMLaP']] as $cat => $expectedSubs) {
+    assert(isset($cats[$cat]), "category {$cat} present");
+    foreach ($expectedSubs as $sub) {
+        assert(in_array($sub, $cats[$cat], true), "subcategory {$sub} present in {$cat}");
+    }
+}
+
+// Add/Remove subcategory
+$repo->addSubcategory('Dev', 'TestSub');
+assert(in_array('TestSub', $repo->categories()['Dev'], true), 'subcategory added');
+$repo->removeSubcategory('Dev', 'TestSub');
+assert(!in_array('TestSub', $repo->categories()['Dev'], true), 'subcategory removed');
+
+// Remove category keeps only empty shell, no crash
+$repo->addCategory('Audit');
+assert(isset($repo->categories()['Audit']), 'category Auditt added');
+$repo->removeCategory('Audit');
+assert(!isset($repo->categories()['Audit']), 'category Audit removed');
+
+// Add category bug (admin.php originally sent 'subcategory' field)
+$repo->addCategory('TestCat2');
+assert(isset($repo->categories()['TestCat2']), 'category added via addCategory');
+$repo->removeCategory('TestCat2');
+
 $repo->removeCategory('TestCat');
 
 // Overdue task
@@ -40,6 +63,10 @@ assert($stats['overdue'] === 1, 'stats overdue one');
 $repo->markDone($overdueId);
 assert(count($repo->findDone()) === 1, 'done one');
 
+// Category add bug (admin.php sends 'subcategory' field)
+$repo->addCategory('Audit');
+assert(isset($repo->categories()['Audit']), 'category added via addCategory');
+$repo->removeCategory('Audit');
+
 unlink($tmp);
-echo "Tests OK
-";
+echo "Tests OK\n";

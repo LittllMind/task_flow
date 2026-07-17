@@ -20,12 +20,46 @@ final class TaskRepository
     private function ensureSchema(): void
     {
         $this->pdo->exec('CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, category TEXT NOT NULL, subcategory TEXT, priority INTEGER CHECK(priority BETWEEN 1 AND 3), due_at TEXT, done INTEGER DEFAULT 0, done_at TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
-        $this->pdo->exec('CREATE TABLE IF NOT EXISTS categories (name TEXT PRIMARY KEY, subcategory TEXT NOT NULL DEFAULT \'\')');
+        $this->migrateCategoriesSchema();
+        $this->pdo->exec('CREATE TABLE IF NOT EXISTS categories (name TEXT NOT NULL, subcategory TEXT NOT NULL DEFAULT \'\', PRIMARY KEY (name, subcategory))');
         try {
             $this->pdo->exec('ALTER TABLE tasks ADD COLUMN done_at TEXT');
         } catch (\PDOException $e) {
             // already exists
         }
+    }
+
+    private function migrateCategoriesSchema(): void
+    {
+        // Old categories table had a single TEXT PRIMARY KEY on name, allowing only one subcategory per category.
+        $info = $this->pdo->query("PRAGMA table_info('categories')")->fetchAll();
+        if (empty($info)) {
+            return;
+        }
+        $hasCompositePk = false;
+        foreach ($info as $col) {
+            if ($col['name'] === 'subcategory' && ($col['pk'] ?? 0) == 2) {
+                $hasCompositePk = true;
+                break;
+            }
+        }
+        if ($hasCompositePk) {
+            return;
+        }
+        $this->pdo->exec('ALTER TABLE categories RENAME TO categories_old');
+        $this->pdo->exec('CREATE TABLE categories (name TEXT NOT NULL, subcategory TEXT NOT NULL DEFAULT \'\', PRIMARY KEY (name, subcategory))');
+        $stmt = $this->pdo->query('SELECT name, subcategory FROM categories_old');
+        $seen = [];
+        $insert = $this->pdo->prepare('INSERT OR IGNORE INTO categories (name, subcategory) VALUES (:name, :subcategory)');
+        while ($row = $stmt->fetch()) {
+            $key = $row['name'] . '|' . $row['subcategory'];
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $insert->execute([':name' => $row['name'], ':subcategory' => $row['subcategory']]);
+        }
+        $this->pdo->exec('DROP TABLE categories_old');
     }
 
     private function seedDefaults(): void
@@ -127,8 +161,7 @@ final class TaskRepository
             $sql .= ' AND category = :category';
             $params[':category'] = $category;
         }
-        $sql .= ' ORDER BY due_at IS NULL, due_at < :today, (CASE WHEN due_at < DATE(\'now\') THEN 0 ELSE 1 END) ASC, due_at ASC, priority ASC';
-        $params[':today'] = date('Y-m-d');
+        $sql .= ' ORDER BY due_at IS NULL, (CASE WHEN due_at < DATE(\'now\') THEN 0 ELSE 1 END) ASC, due_at ASC, priority ASC';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
@@ -153,7 +186,9 @@ final class TaskRepository
     public function stats(): array
     {
         $total = (int) $this->pdo->query('SELECT COUNT(*) FROM tasks WHERE done = 0')->fetchColumn();
-        $overdue = (int) $this->pdo->prepare('SELECT COUNT(*) FROM tasks WHERE done = 0 AND due_at IS NOT NULL AND due_at < DATE(\'now\')')->fetchColumn();
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM tasks WHERE done = 0 AND due_at IS NOT NULL AND due_at < DATE(\'now\')');
+        $stmt->execute();
+        $overdue = (int) $stmt->fetchColumn();
         $done = (int) $this->pdo->query('SELECT COUNT(*) FROM tasks WHERE done = 1')->fetchColumn();
         return ['total' => $total, 'overdue' => $overdue, 'done' => $done];
     }

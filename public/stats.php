@@ -6,7 +6,8 @@ if (!file_exists($vendorPath)) {
     $vendorPath = __DIR__ . '/../vendor/autoload.php';
 }
 require $vendorPath;
-require __DIR__ . '/../src/Config.php';
+$baseDir = dirname(dirname($vendorPath));
+require $baseDir . '/src/Config.php';
 
 requirePin();
 

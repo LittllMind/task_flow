@@ -454,3 +454,50 @@ header .admin-link {
   text-decoration: none;
   font-size: .875rem;
 }
+
+.header-actions {
+  display: flex;
+  gap: .75rem;
+  margin-left: auto;
+}
+
+.category-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-light);
+  border-radius: 2rem;
+  padding: .35rem .35rem .35rem .85rem;
+  font-size: .9rem;
+}
+
+.cat-chip.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cat-chip a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.cat-chip.active a {
+  color: var(--accent);
+}
+
+.cat-chip form button {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  font-size: .8rem;
+  padding: 0;
+}
