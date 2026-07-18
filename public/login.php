@@ -1,12 +1,8 @@
 <?php
 declare(strict_types=1);
 
-$vendorPath = __DIR__ . '/vendor/autoload.php';
-if (!file_exists($vendorPath)) {
-    $vendorPath = __DIR__ . '/../vendor/autoload.php';
-}
-require $vendorPath;
-require __DIR__ . '/../src/Config.php';
+require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/src/Config.php';
 
 session_start();
 
