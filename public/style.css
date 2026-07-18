@@ -502,6 +502,59 @@ header .admin-link {
   padding: 0;
 }
 
+/* Overlay blocker card above blocked task */
+.task-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.task-card.blocked {
+  opacity: .35;
+  filter: grayscale(0.7);
+}
+
+.blocker-overlay {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 .75rem .35rem;
+  margin-bottom: -.55rem;
+  z-index: 5;
+}
+
+.blocker-line {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: var(--surface);
+  border: 1px solid var(--danger);
+  border-bottom: none;
+  border-radius: .85rem .85rem 0 0;
+  padding: .45rem .85rem .6rem;
+  box-shadow: 0 -6px 16px rgba(244, 63, 94, .25);
+}
+
+.blocker-icon {
+  font-size: .9rem;
+  color: var(--danger);
+}
+
+.blocker-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+
+.blocker-chip {
+  background: rgba(244, 63, 94, .12);
+  color: #fecaca;
+  font-size: .82rem;
+  font-weight: 500;
+  padding: .25rem .55rem;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .error-banner {
   background: rgba(244, 63, 94, .18);
   color: var(--danger);

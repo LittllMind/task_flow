@@ -191,7 +191,21 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
         <p class="empty"><?= $view === 'todo' ? 'Aucune tâche en cours.' : 'Aucune tâche terminée.' ?></p>
       <?php endif; ?>
       <?php foreach ($tasks as $task): ?>
-        <article class="task-card priority-<?= (int) $task['priority'] ?> <?= $view === 'done' ? 'done' : '' ?>">
+        <?php $blockers = $blockersMap[(int) $task['id']] ?? []; ?>
+        <div class="task-stack">
+          <?php if (!empty($blockers)): ?>
+            <div class="blocker-overlay">
+              <div class="blocker-line">
+                <span class="blocker-icon">⛓</span>
+                <div class="blocker-body">
+                  <?php foreach ($blockers as $b): ?>
+                    <a class="blocker-chip" href="?action=edit&id=<?= (int) $b['id'] ?>"><?= htmlspecialchars($b['title']) ?></a>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
+        <article class="task-card priority-<?= (int) $task['priority'] ?> <?= $view === 'done' ? 'done' : '' ?> <?= !empty($blockers) ? 'blocked' : '' ?>">
           <div class="task-content">
             <h2><?= htmlspecialchars($task['title'], ENT_QUOTES, 'UTF-8') ?></h2>
             <div class="task-meta">
@@ -199,13 +213,6 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
               <?php if ($task['due_at']): ?><span class="chip due-chip"><?= htmlspecialchars($task['due_at']) ?></span><?php endif; ?>
               <?php if ($repo->isOverdue((int) $task['id'])): ?><span class="chip overdue-chip">En retard</span><?php endif; ?>
               <?php if ($view === 'done' && $task['done_at']): ?><span class="chip">Terminée <?= htmlspecialchars(date('d/m/Y', strtotime($task['done_at']))) ?></span><?php endif; ?>
-              <?php if (!empty($blockersMap[(int) $task['id']])): ?>
-                <span class="chip blocked-chip">Bloquée <?php
-                $names = array_slice(array_column($blockersMap[(int) $task['id']], 'title'), 0, 2);
-                echo '· ' . htmlspecialchars(implode(', ', $names));
-                if (count($blockersMap[(int) $task['id']]) > 2) echo ' +' . (count($blockersMap[(int) $task['id']]) - 2);
-                ?></span>
-              <?php endif; ?>
             </div>
           </div>
           <div class="task-actions">
@@ -214,7 +221,7 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
                 <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="done">
                 <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
-                <button type="submit" class="btn btn-success <?= !empty($blockersMap[(int) $task['id']]) ? 'btn-disabled' : '' ?>" title="Terminer" <?= !empty($blockersMap[(int) $task['id']]) ? 'disabled' : '' ?>>✓</button>
+                <button type="submit" class="btn btn-success <?= !empty($blockers) ? 'btn-disabled' : '' ?>" title="Terminer" <?= !empty($blockers) ? 'disabled' : '' ?>>✓</button>
               </form>
               <a class="btn btn-primary" href="?action=edit&id=<?= (int) $task['id'] ?><?= $filter ? '&category=' . urlencode($filter) : '' ?>" title="Éditer">✎</a>
             <?php endif; ?>
@@ -234,6 +241,7 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
             <?php endif; ?>
           </div>
         </article>
+        </div>
       <?php endforeach; ?>
     </div>
   </div>
