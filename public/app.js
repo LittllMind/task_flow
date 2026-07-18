@@ -74,4 +74,11 @@ if (window.editTask) {
   fillSubcategories(t.category, t.subcategory || '');
   document.getElementById('priority').value = t.priority;
   document.getElementById('due_at').value = t.due_at || '';
+  // Hide + button in edit mode
+  if (openBtn) openBtn.style.display = 'none';
+}
+
+// Keep Add Task button hidden when editing or when modal is open via URL
+if (window.location.search.includes('action=edit')) {
+  if (openBtn) openBtn.style.display = 'none';
 }

@@ -22,6 +22,7 @@ final class TaskRepository
         $this->pdo->exec('CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, category TEXT NOT NULL, subcategory TEXT, priority INTEGER CHECK(priority BETWEEN 1 AND 3), due_at TEXT, done INTEGER DEFAULT 0, done_at TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
         $this->migrateCategoriesSchema();
         $this->pdo->exec('CREATE TABLE IF NOT EXISTS categories (name TEXT NOT NULL, subcategory TEXT NOT NULL DEFAULT \'\', PRIMARY KEY (name, subcategory))');
+        $this->pdo->exec('CREATE TABLE IF NOT EXISTS task_dependencies (blocker_id INTEGER NOT NULL, blocked_id INTEGER NOT NULL, PRIMARY KEY (blocker_id, blocked_id), FOREIGN KEY (blocker_id) REFERENCES tasks(id) ON DELETE CASCADE, FOREIGN KEY (blocked_id) REFERENCES tasks(id) ON DELETE CASCADE)');
         try {
             $this->pdo->exec('ALTER TABLE tasks ADD COLUMN done_at TEXT');
         } catch (\PDOException $e) {
@@ -228,7 +229,66 @@ final class TaskRepository
 
     public function markDone(int $id): void
     {
+        if (!$this->canBeDone($id)) {
+            $titles = array_column($this->blockersFor($id), 'title');
+            throw new \RuntimeException('Bloquée par : ' . implode(', ', $titles));
+        }
         $this->update($id, ['done' => 1, 'done_at' => date('Y-m-d H:i:s')]);
+    }
+
+    public function canBeDone(int $id): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT 1 FROM task_dependencies d JOIN tasks t ON t.id = d.blocker_id WHERE d.blocked_id = :id AND t.done = 0 LIMIT 1');
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch() === false;
+    }
+
+    public function blockersFor(int $id): array
+    {
+        $stmt = $this->pdo->prepare('SELECT t.* FROM tasks t JOIN task_dependencies d ON d.blocker_id = t.id WHERE d.blocked_id = :id AND t.done = 0 ORDER BY t.due_at IS NULL, t.due_at ASC');
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetchAll();
+    }
+
+    public function addDependency(int $blockerId, int $blockedId): void
+    {
+        if ($blockerId === $blockedId) {
+            throw new \RuntimeException('Une tâche ne peut pas se bloquer elle-même.');
+        }
+        if ($this->wouldCycle($blockerId, $blockedId)) {
+            throw new \RuntimeException('Cette dépendance créerait un cycle.');
+        }
+        $stmt = $this->pdo->prepare('INSERT OR IGNORE INTO task_dependencies (blocker_id, blocked_id) VALUES (:blocker_id, :blocked_id)');
+        $stmt->execute([':blocker_id' => $blockerId, ':blocked_id' => $blockedId]);
+    }
+
+    public function removeDependency(int $blockerId, int $blockedId): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM task_dependencies WHERE blocker_id = :blocker_id AND blocked_id = :blocked_id');
+        $stmt->execute([':blocker_id' => $blockerId, ':blocked_id' => $blockedId]);
+    }
+
+    private function wouldCycle(int $from, int $intTo): bool
+    {
+        // check if adding edge from -> to would create a cycle; i.e. if from is reachable from to
+        $toVisit = [$from];
+        $seen = [];
+        $stmt = $this->pdo->prepare('SELECT blocked_id FROM task_dependencies WHERE blocker_id = :id');
+        while ($toVisit) {
+            $current = array_pop($toVisit);
+            if ($current === $intTo) {
+                return true;
+            }
+            if (isset($seen[$current])) {
+                continue;
+            }
+            $seen[$current] = true;
+            $stmt->execute([':id' => $current]);
+            foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $next) {
+                $toVisit[] = (int) $next;
+            }
+        }
+        return false;
     }
 
     public function delete(int $id): void

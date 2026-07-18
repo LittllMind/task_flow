@@ -82,27 +82,74 @@ if (in_array($action, ['create', 'update', 'delete', 'done', 'restore'], true) &
     } elseif ($action === 'update' && $id) {
         $repo->update($id, normalizeTask($_POST));
     } elseif ($action === 'done' && $id) {
-        $repo->markDone($id);
+        try {
+            $repo->markDone($id);
+        } catch (\RuntimeException $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
     } elseif ($action === 'restore' && $id) {
         $repo->restore($id);
     } elseif ($action === 'delete' && $id) {
         $repo->delete($id);
     }
-    header('Location: .');
+    header('Location: .' . ($filter ? '?category=' . urlencode($filter) : ''));
     exit;
 }
+
+if (in_array($action, ['add_dependency', 'remove_dependency'], true) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrfOk($_POST['csrf'] ?? '')) {
+        http_response_code(403);
+        exit('Forbidden');
+    }
+    $id = isset($_POST['id']) ? (int) $_POST['id'] : null;
+    $blockerId = isset($_POST['blocker_id']) ? (int) $_POST['blocker_id'] : null;
+    if ($action === 'add_dependency' && $id && $blockerId) {
+        try {
+            $repo->addDependency($blockerId, $id);
+        } catch (\RuntimeException $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+    } elseif ($action === 'remove_dependency' && $id && $blockerId) {
+        $repo->removeDependency($blockerId, $id);
+    }
+    header('Location: .' . (($action === 'edit' || $filter) ? '?action=edit&id=' . $id . ($filter ? '&category=' . urlencode($filter) : '') : ''));
+    exit;
+}
+
+$error = $_SESSION['error'] ?? '';
+unset($_SESSION['error']);
 
 $view = $_GET['view'] ?? 'todo';
 if ($view !== 'done') {
     $view = 'todo';
 }
 $filter = $_GET['category'] ?? null;
-$tasks = $view === 'todo' ? $repo->findIncomplete($filter) : $repo->findDone();
-$priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
 $editTask = null;
-if (($action === 'edit') && isset($_GET['id'])) {
+$editBlockers = [];
+$candidates = [];
+if (($action === 'edit' || $action === 'add_dependency' || $action === 'remove_dependency') && isset($_GET['id'])) {
     $editTask = $repo->find((int) $_GET['id']);
+    if ($editTask) {
+        $editBlockers = $repo->blockersFor((int) $editTask['id']);
+        // candidates: incomplete tasks excluding current and already-blockers
+        $blockedIds = array_column($editBlockers, 'id');
+        foreach ($repo->findIncomplete() as $t) {
+            if ((int) $t['id'] === (int) $editTask['id'] || in_array((int) $t['id'], $blockedIds, true)) {
+                continue;
+            }
+            $candidates[] = $t;
+        }
+    }
 }
+$tasks = $view === 'todo' ? $repo->findIncomplete($filter) : $repo->findDone();
+$blockersMap = [];
+if ($view === 'todo') {
+    $ids = array_column($tasks, 'id');
+    foreach ($ids as $tid) {
+        $blockersMap[(int) $tid] = $repo->blockersFor((int) $tid);
+    }
+}
+$priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -122,6 +169,10 @@ if (($action === 'edit') && isset($_GET['id'])) {
       <a class="admin-link" href="admin.php" title="Gérer les catégories">⚙</a>
       <a class="admin-link" href="stats.php" title="Statistiques">◔</a>
     </header>
+
+    <?php if ($error): ?>
+      <div class="error-banner"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
 
     <nav class="filters">
       <a href="." class="<?= $filter === null ? 'active' : '' ?>">Toutes</a>
@@ -148,6 +199,13 @@ if (($action === 'edit') && isset($_GET['id'])) {
               <?php if ($task['due_at']): ?><span class="chip due-chip"><?= htmlspecialchars($task['due_at']) ?></span><?php endif; ?>
               <?php if ($repo->isOverdue((int) $task['id'])): ?><span class="chip overdue-chip">En retard</span><?php endif; ?>
               <?php if ($view === 'done' && $task['done_at']): ?><span class="chip">Terminée <?= htmlspecialchars(date('d/m/Y', strtotime($task['done_at']))) ?></span><?php endif; ?>
+              <?php if (!empty($blockersMap[(int) $task['id']])): ?>
+                <span class="chip blocked-chip">Bloquée <?php
+                $names = array_slice(array_column($blockersMap[(int) $task['id']], 'title'), 0, 2);
+                echo '· ' . htmlspecialchars(implode(', ', $names));
+                if (count($blockersMap[(int) $task['id']]) > 2) echo ' +' . (count($blockersMap[(int) $task['id']]) - 2);
+                ?></span>
+              <?php endif; ?>
             </div>
           </div>
           <div class="task-actions">
@@ -156,9 +214,9 @@ if (($action === 'edit') && isset($_GET['id'])) {
                 <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="action" value="done">
                 <input type="hidden" name="id" value="<?= (int) $task['id'] ?>">
-                <button type="submit" class="btn btn-success" title="Terminer">✓</button>
+                <button type="submit" class="btn btn-success <?= !empty($blockersMap[(int) $task['id']]) ? 'btn-disabled' : '' ?>" title="Terminer" <?= !empty($blockersMap[(int) $task['id']]) ? 'disabled' : '' ?>>✓</button>
               </form>
-              <a class="btn btn-primary" href="?action=edit&id=<?= (int) $task['id'] ?>" title="Éditer">✎</a>
+              <a class="btn btn-primary" href="?action=edit&id=<?= (int) $task['id'] ?><?= $filter ? '&category=' . urlencode($filter) : '' ?>" title="Éditer">✎</a>
             <?php endif; ?>
             <form method="post" class="action-form" onsubmit="return confirm('Supprimer cette tâche ?');">
               <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
@@ -208,6 +266,43 @@ if (($action === 'edit') && isset($_GET['id'])) {
         <input type="date" name="due_at" id="due_at">
       </div>
       <button type="submit" id="submitBtn">Ajouter</button>
+      <?php if ($editTask): ?>
+      <div class="deps-section">
+        <h4>Prérequis</h4>
+        <?php if (empty($editBlockers)): ?>
+          <p class="empty-deps">Aucune tâche requise avant celle-ci.</p>
+        <?php else: ?>
+          <ul class="deps-list">
+            <?php foreach ($editBlockers as $b): ?>
+              <li>
+                <span class="dep-title"><?= htmlspecialchars($b['title']) ?></span>
+                <form method="post" class="action-form">
+                  <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                  <input type="hidden" name="action" value="remove_dependency">
+                  <input type="hidden" name="id" value="<?= (int) $editTask['id'] ?>">
+                  <input type="hidden" name="blocker_id" value="<?= (int) $b['id'] ?>">
+                  <button type="submit" class="btn btn-sm btn-danger" title="Retirer">✕</button>
+                </form>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+        <?php if (!empty($candidates)): ?>
+          <form method="post" class="dep-add-form">
+            <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="action" value="add_dependency">
+            <input type="hidden" name="id" value="<?= (int) $editTask['id'] ?>">
+            <select name="blocker_id" required>
+              <option value="">Ajouter un prérequis...</option>
+              <?php foreach ($candidates as $c): ?>
+                <option value="<?= (int) $c['id'] ?>"><?= htmlspecialchars($c['title']) ?></option>
+              <?php endforeach; ?>
+            </select>
+            <button type="submit" class="btn btn-primary">+</button>
+          </form>
+        <?php endif; ?>
+      </div>
+      <?php endif; ?>
       <a href="#" class="close-modal" id="closeModal">Annuler</a>
     </form>
   </div>
@@ -217,6 +312,7 @@ if (($action === 'edit') && isset($_GET['id'])) {
   <script>
     window.editTask = <?= json_encode($editTask, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK) ?>;
     window.editSubcats = <?= json_encode($categories, JSON_UNESCAPED_UNICODE) ?>;
+    window.editBlockers = <?= json_encode(array_column($editBlockers, 'id'), JSON_UNESCAPED_UNICODE) ?>;
   </script>
   <?php endif; ?>
 
