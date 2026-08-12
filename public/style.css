@@ -150,31 +150,36 @@ header .count {
   color: var(--priority-med);
 }
 
-.filters {
-  display: flex;
+.discipline-tabs, .filters, .view-toggle {
+  grid-template-columns: repeat(3, 1fr);
+  display: grid;
   gap: .5rem;
-  overflow-x: auto;
-  padding-bottom: .5rem;
   margin-bottom: 1rem;
-  scrollbar-width: none;
 }
 
-.filters::-webkit-scrollbar { display: none; }
-
-.filters a {
-  flex: 0 0 auto;
-  padding: .4rem .8rem;
-  background: var(--surface);
-  color: var(--muted);
-  border-radius: 999px;
+.view-toggle a, .filters a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .25rem;
+  padding: .5rem .75rem;
+  border-radius: .65rem;
+  font-size: .9rem;
+  font-weight: 600;
   text-decoration: none;
-  font-size: .8rem;
-  font-weight: 500;
+  transition: background .2s, color .2s;
+  background: var(--bg);
+  color: var(--muted);
 }
 
-.filters a.active {
+.view-toggle a.active, .filters a.active, .discipline-tab.active {
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+.view-toggle a:hover, .filters a:hover, .discipline-tab:hover {
+  background: var(--surface-light);
+  color: var(--text);
 }
 
 .empty {
@@ -296,29 +301,6 @@ a.btn,
   margin-top: .25rem;
 }
 
-.view-toggle {
-  display: flex;
-  gap: .5rem;
-  margin-bottom: 1rem;
-}
-
-.view-toggle a {
-  flex: 1;
-  text-align: center;
-  padding: .5rem;
-  background: var(--surface);
-  color: var(--muted);
-  border-radius: .5rem;
-  text-decoration: none;
-  font-size: .875rem;
-  font-weight: 500;
-}
-
-.view-toggle a.active {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
 .task-card.done {
   opacity: .7;
 }
@@ -326,6 +308,153 @@ a.btn,
 .task-card.done h2 {
   text-decoration: line-through;
 }
+
+/* --- Task Quick Actions (new discipline-style) --- */
+.task-quick-actions {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+
+.task-quick-actions form {
+  margin: 0;
+}
+
+.btn-tq {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .25rem;
+  border: none;
+  border-radius: .6rem;
+  padding: .6rem .9rem;
+  font-size: .85rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .15s, transform .05s;
+  font-family: inherit;
+}
+
+.btn-tq-success {
+  background: var(--success);
+  color: #fff;
+}
+
+.btn-tq-success:hover {
+  background: #16a34a;
+}
+
+.btn-tq-primary {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.btn-tq-primary:hover {
+  background: #dbeafe;
+}
+
+.btn-tq-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--surface-light);
+}
+
+.btn-tq-ghost:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Deck card footer layout */
+.deck-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .75rem;
+  margin-top: .75rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--surface-light);
+}
+
+.deck-card-footer .category-chip {
+  font-size: .75rem;
+  flex-shrink: 0;
+}
+
+/* Header badges inline */
+.deck-meta-badges {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.deck-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+}
+
+.deck-card-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.deck-card.active .deck-card-header h2 {
+  font-weight: 700;
+}
+
+.deck-card-peek {
+  font-size: .75rem;
+  color: var(--muted);
+  background: var(--bg);
+  padding: .15rem .45rem;
+  border-radius: .35rem;
+}
+
+/* Override deck-card active to style like discipline card */
+.deck-card.active .deck-card-inner {
+  background: var(--surface);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+}
+
+/* Ensure non-active deck cards are still peekable */
+.deck-card:not(.active) .deck-card-inner {
+  background: var(--surface);
+  border-radius: 1rem;
+  padding: .9rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,.04);
+}
+
+.deck-card:not(.active) {
+  opacity: .75;
+  transform: scale(.985);
+}
+
+/* Adjust priority strip on all deck-cards */
+.deck-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.deck-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 1rem 0 0 1rem;
+}
+
+.deck-card.priority-1::before { background: var(--priority-high); }
+.deck-card.priority-2::before { background: var(--priority-med); }
+.deck-card.priority-3::before { background: var(--priority-low); }
 
 .admin-link {
   color: var(--muted);

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 $navItems = [
-    ['url' => 'index.php',    'label' => 'Tâches',      'icon' => '&#9997;&#65039;'],
+    ['url' => 'checklist.php', 'label' => 'Tâches',      'icon' => '&#9997;&#65039;'],
     ['url' => 'checklist.php', 'label' => 'Checklists',  'icon' => '&#9745;&#65039;'],
     ['url' => 'mining.php',   'label' => 'Mining',      'icon' => '&#9889;'],
     ['url' => 'discipline.php', 'label' => 'Discipline', 'icon' => '&#128170;'],

@@ -45,9 +45,14 @@
 - Discipline : sparkline 7 jours, mini sparkline 30 jours, stats grid + leaderboard catégories
 - Combo Mining↔Discipline : +25 pts auto si harvest + log même jour
 
+### v0.8.1 — Navbar commune + Calendrier cultures interactif (2026-08-12)
+- `includes/navbar.php` : navigation partagée sur 8 pages avec active-state + emojis HTML
+- Calendrier cultures : chaque case devient un bouton toggle (arrosé / non-arrosé) sans rechargement complet
+- `wateringCalendar()` retourne `log_id` pour l'annulation ; `unwater()` corrige le recalcule `last_watered_at`
+
 ### v0.6a — TaskFlow Cultures (bonus hors v0.x canonique) (2026-08-12)
 - Variétés + cultures (`varieties`, `cultures`, `variety_periods`)
-- `SeedlingRepository`, 6 variétés réelles + 53 périodes, seeds idempotents
+- `SeedlingRepository`, 6 variétés réelles + 27 périodes, seeds idempotents
 - Vue `seedlings.php` : arrosage, état visuel, dates semis/rempotage
 
 ---
