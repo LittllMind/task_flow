@@ -63,6 +63,16 @@ assert($stats['overdue'] === 1, 'stats overdue one');
 $repo->markDone($overdueId);
 assert(count($repo->findDone()) === 1, 'done one');
 
+// Today and overdue
+$today = date('Y-m-d');
+$todayId = $repo->create(['title' => 'Aujourd\'hui', 'category' => 'Pro', 'subcategory' => '', 'priority' => 1, 'due_at' => $today]);
+$lateId = $repo->create(['title' => 'En retard', 'category' => 'Pro', 'subcategory' => '', 'priority' => 2, 'due_at' => date('Y-m-d', strtotime('-2 days'))]);
+$noDateId = $repo->create(['title' => 'Sans date', 'category' => 'Pro', 'subcategory' => '', 'priority' => 2, 'due_at' => null]);
+assert(count($repo->findToday()) === 1, 'findToday one');
+assert($repo->findToday()[0]['id'] == $todayId, 'findToday returns today task');
+assert(count($repo->findOverdue()) === 1, 'findOverdue one late');
+assert($repo->findOverdue()[0]['id'] == $lateId, 'findOverdue returns late');
+
 // Category add bug (admin.php sends 'subcategory' field)
 $repo->addCategory('Audit');
 assert(isset($repo->categories()['Audit']), 'category added via addCategory');

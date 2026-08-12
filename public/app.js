@@ -23,7 +23,7 @@ function fillSubcategories(selectedCat, selectedSub = '') {
 
 catSelect.addEventListener('change', () => fillSubcategories(catSelect.value));
 
-function openModal(mode = 'create') {
+function appOpenModal(mode = 'create') {
   modal.classList.add('open');
   if (mode === 'create') {
     form.reset();
@@ -32,10 +32,11 @@ function openModal(mode = 'create') {
     modalTitle.textContent = 'Nouvelle tâche';
     submitBtn.textContent = 'Ajouter';
     fillSubcategories('');
+    // Let deck.js clear blockerContextId after its own click listener updates the form
   }
 }
 
-openBtn.addEventListener('click', () => openModal('create'));
+openBtn.addEventListener('click', () => appOpenModal('create'));
 closeBtn.addEventListener('click', e => {
   e.preventDefault();
   modal.classList.remove('open');
@@ -82,3 +83,16 @@ if (window.editTask) {
 if (window.location.search.includes('action=edit')) {
   if (openBtn) openBtn.style.display = 'none';
 }
+
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement?.tagName?.toLowerCase();
+  const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select' || document.activeElement?.isContentEditable;
+  if (e.key === '/' && !isTyping && modal && !modal.classList.contains('open') && (!window.editTask || !window.location.search.includes('action=edit'))) {
+    e.preventDefault();
+    appOpenModal('create');
+  }
+  if (e.key === 'Escape' && modal && modal.classList.contains('open')) {
+    e.preventDefault();
+    modal.classList.remove('open');
+  }
+});

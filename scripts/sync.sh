@@ -21,7 +21,7 @@ ensure_schema() {
 
 run_lftp() {
     lftp -u "$FTP_USER,$FTP_PASS" "$FTP_HOST" \
-        -e "set ssl:verify-certificate no; set ftp:ssl-allow no; $1; bye"
+        -e "set ssl:verify-certificate no; set ftp:ssl-allow no; set ftp:chmod-ignore yes; $1; bye"
 }
 
 backup_prod_db() {

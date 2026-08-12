@@ -65,6 +65,10 @@ final class TaskRepository
 
     private function seedDefaults(): void
     {
+        $count = (int) $this->pdo->query('SELECT COUNT(*) FROM categories')->fetchColumn();
+        if ($count > 0) {
+            return;
+        }
         $default = [
             'Perso' => ['Courses', 'Santé', 'Famille'],
             'Pro' => ['Roland', 'CIVITAS', 'Appels'],
@@ -75,17 +79,9 @@ final class TaskRepository
             'Administratif' => ['Impôt', 'Banque', 'Assurance'],
         ];
 
-        $existing = $this->pdo->query('SELECT name, subcategory FROM categories')->fetchAll(PDO::FETCH_ASSOC);
-        $map = [];
-        foreach ($existing as $row) {
-            $map[trim($row['name'])][] = $row['subcategory'];
-        }
-
         foreach ($default as $cat => $subs) {
             foreach ($subs as $sub) {
-                if (!isset($map[$cat]) || !in_array($sub, $map[$cat], true)) {
-                    $this->insertCategory($cat, $sub);
-                }
+                $this->insertCategory($cat, $sub);
             }
         }
     }
@@ -171,6 +167,20 @@ final class TaskRepository
     public function findDone(): array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM tasks WHERE done = 1 ORDER BY done_at DESC');
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function findToday(): array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM tasks WHERE done = 0 AND due_at = DATE('now') ORDER BY priority ASC, due_at IS NULL, due_at ASC");
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function findOverdue(): array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM tasks WHERE done = 0 AND due_at IS NOT NULL AND due_at < DATE('now') ORDER BY due_at ASC, priority ASC");
         $stmt->execute();
         return $stmt->fetchAll();
     }

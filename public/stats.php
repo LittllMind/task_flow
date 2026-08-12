@@ -30,7 +30,7 @@ $stats = $repo->stats();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TaskFlow — Stats</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
   <link rel="icon" href="favicon.php">
 </head>
 <body>
@@ -55,7 +55,7 @@ $stats = $repo->stats();
       </div>
     </div>
 
-    <a class="back-link" href="index.php">← Retour aux tâches</a>
+    <a class="back-link" href="checklist.php">← Retour aux checklists</a>
     <a class="back-link" href="admin.php">Gérer les catégories</a>
   </div>
 </body>

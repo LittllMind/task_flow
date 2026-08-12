@@ -18,3 +18,16 @@ deploy/
 
 # Backups
 *.v01
+
+# Data artefacts
+*.bak
+*.tmp
+*.prod.tmp
+*.before-*
+
+# Backups
+backups/
+
+# Debug / ad-hoc
+public/php_part_only.php
+public/picoclaw.php
