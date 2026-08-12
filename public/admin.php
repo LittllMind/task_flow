@@ -1,12 +1,20 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/vendor/autoload.php';
+$vendorPath = __DIR__ . '/vendor/autoload.php';
+if (!file_exists($vendorPath)) {
+    $vendorPath = __DIR__ . '/../vendor/autoload.php';
+}
+require $vendorPath;
 
 use TaskFlow\Database;
 use TaskFlow\TaskRepository;
 
-require __DIR__ . '/src/Config.php';
+$configPath = __DIR__ . '/src/Config.php';
+if (!file_exists($configPath)) {
+    $configPath = __DIR__ . '/../src/Config.php';
+}
+require $configPath;
 requirePin();
 
 session_start();
