@@ -119,21 +119,10 @@ unset($_SESSION['error']);
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<?php require __DIR__ . '/includes/navbar.php'; ?>
   <div class="container mining-page">
-    <header>
-      <h1>Mining Deck</h1>
-      <div class="header-center-group">
-        <span class="count"><?= $totalCards ?> carte<?= $totalCards > 1 ? 's' : '' ?></span>
-        <span class="mining-score-badge"><?= $scoreValue ?> </span>
-        <?php if ($streak > 0): ?><span class="mining-streak-badge"><?= $streak ?> </span><?php endif; ?>
-      </div>
-      <a class="admin-link header-icon" href="checklist.php" title="Retour aux checklists">
-        <span class="header-icon-symbol">‹</span>
-        <span class="header-icon-label">Checklists</span>
-      </a>
-    </header>
-
-    <?php if ($totalCards > 0): ?>
+    <!-- navbar -->
+<?php if ($totalCards > 0): ?>
       <div class="mining-progress-bar">
         <div class="mining-progress-fill" style="width:<?= (int)(($harvestedToday / max($totalCards + $harvestedToday, 1)) * 100) ?>%" data-progress="<?= $harvestedToday ?>/<?= $totalCards + $harvestedToday ?>"></div>
       </div>

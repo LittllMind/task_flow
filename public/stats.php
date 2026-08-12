@@ -42,13 +42,10 @@ $stats = $repo->stats();
   <link rel="icon" href="favicon.php">
 </head>
 <body>
+<?php require __DIR__ . '/includes/navbar.php'; ?>
   <div class="container">
-    <header>
-      <h1>Statistiques</h1>
-      <a class="admin-link" href="logout.php" title="Déconnexion">✕</a>
-    </header>
-
-    <div class="stats-grid">
+    <!-- navbar -->
+<div class="stats-grid">
       <div class="stat-card">
         <span class="stat-value"><?= (int) $stats['total'] ?></span>
         <span class="stat-label">À faire</span>

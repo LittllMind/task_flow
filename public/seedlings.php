@@ -53,6 +53,8 @@ if (in_array($action, ['create', 'update', 'water', 'unwater', 'delete'], true) 
         $redirect .= '?id=' . (int) $_GET['id'];
     } elseif (isset($_POST['id'])) {
         $redirect .= '?id=' . (int) $_POST['id'];
+    } elseif (isset($_POST['seedling_id'])) {
+        $redirect .= '?id=' . (int) $_POST['seedling_id'];
     }
 
     if ($action === 'create') {
@@ -212,17 +214,10 @@ function formatMinMax(?int $min, ?int $max, string $unit): string
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<?php require __DIR__ . '/includes/navbar.php'; ?>
   <div class="container">
-    <header>
-      <h1>Cultures</h1>
-      <span class="count"><?= count($seedlings) ?> <?= count($seedlings) > 1 ? 'cultures' : 'culture' ?></span>
-      <a class="admin-link header-icon" href="checklist.php" title="Checklists">
-        <span class="header-icon-symbol">‹</span>
-        <span class="header-icon-label">Checklists</span>
-      </a>
-    </header>
-
-    <?php if (!$detail): ?>
+    <!-- navbar -->
+<?php if (!$detail): ?>
       <button class="add-btn" type="button" title="Ajouter une culture" onclick="location.href='?create=1'">+</button>
 
       <?php if (empty($seedlings)): ?>
@@ -452,13 +447,28 @@ function formatMinMax(?int $min, ?int $max, string $unit): string
           <h3>Calendrier d'arrosage (42 jours)</h3>
           <div class="watering-calendar-grid">
             <?php foreach ($calendar as $day): ?>
-              <div class="watering-day <?= $day['isToday'] ? 'today' : '' ?> <?= $day['count'] > 0 ? 'watered' : '' ?>">
-                <span class="wd-letter"><?= dayLetter($day['date']) ?></span>
-                <span class="wd-num"><?= dayNum($day['date']) ?></span>
+              <?php
+                $classes = 'watering-day' . ($day['isToday'] ? ' today' : '') . ($day['count'] > 0 ? ' watered' : '');
+              ?>
+              <form method="post" class="watering-day-form <?= $classes ?>">
+                <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
+                <input type="hidden" name="seedling_id" value="<?= $detailId ?>">
                 <?php if ($day['count'] > 0): ?>
-                  <span class="wd-dot"></span>
+                  <input type="hidden" name="action" value="unwater">
+                  <input type="hidden" name="log_id" value="<?= (int) $day['log_id'] ?>">
+                <?php else: ?>
+                  <input type="hidden" name="action" value="water">
+                  <input type="hidden" name="id" value="<?= $detailId ?>">
+                  <input type="hidden" name="date" value="<?= $day['date'] ?>">
                 <?php endif; ?>
-              </div>
+                <button type="submit" title="<?= $day['count'] > 0 ? 'Retirer arrosage' : 'Marquer arrosé' ?>">
+                  <span class="wd-letter"><?= dayLetter($day['date']) ?></span>
+                  <span class="wd-num"><?= dayNum($day['date']) ?></span>
+                  <?php if ($day['count'] > 0): ?>
+                    <span class="wd-dot"></span>
+                  <?php endif; ?>
+                </button>
+              </form>
             <?php endforeach; ?>
           </div>
         </section>

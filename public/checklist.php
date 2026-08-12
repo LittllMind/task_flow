@@ -98,36 +98,10 @@ $pct = $stats['total'] > 0 ? round($stats['done'] / $stats['total'] * 100) : 0;
   <link rel="icon" href="favicon.php">
 </head>
 <body>
+<?php require __DIR__ . '/includes/navbar.php'; ?>
   <div class="container">
-    <header>
-      <h1>TaskFlow</h1>
-      <a class="admin-link header-icon" href="discipline.php" title="Discipline">
-        <span class="header-icon-symbol">💪</span>
-        <span class="header-icon-label">Discipline</span>
-      </a>
-      <a class="admin-link header-icon active" href="checklist.php" title="Checklists">
-        <span class="header-icon-symbol">☑</span>
-        <span class="header-icon-label">Checklists</span>
-      </a>
-      <a class="admin-link header-icon" href="mining.php" title="Mining Deck">
-        <span class="header-icon-symbol">⛏️</span>
-        <span class="header-icon-label">Mining</span>
-      </a>
-      <a class="admin-link header-icon" href="seedlings.php" title="Semis">
-        <span class="header-icon-symbol">🌱</span>
-        <span class="header-icon-label">Semis</span>
-      </a>
-      <a class="admin-link header-icon" href="admin.php" title="Catégories">
-        <span class="header-icon-symbol">⚙</span>
-        <span class="header-icon-label">Admin</span>
-      </a>
-      <a class="admin-link header-icon" href="logout.php" title="Quitter">
-        <span class="header-icon-symbol">✕</span>
-        <span class="header-icon-label">Quitter</span>
-      </a>
-    </header>
-
-    <?php if (empty($all)): ?>
+    <!-- navbar -->
+<?php if (empty($all)): ?>
       <section class="empty-create">
         <p class="empty">Aucune checklist. Cr&eacute;es-en une premi&egrave;re.</p>
         <form method="post" class="checklist-new-form">

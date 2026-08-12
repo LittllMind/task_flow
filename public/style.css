@@ -2457,8 +2457,18 @@ a.seedling-card:focus-visible {
   gap: .35rem;
 }
 
-.watering-day {
+.watering-day-form {
   aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.watering-day-form button {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2466,34 +2476,41 @@ a.seedling-card:focus-visible {
   gap: .1rem;
   background: var(--surface-light);
   border-radius: .55rem;
-  font-size: .75rem;
+  border: none;
   color: var(--muted);
+  cursor: pointer;
   position: relative;
+  font-family: inherit;
+  padding: .15rem;
 }
 
-.watering-day.today {
+.watering-day-form button:hover {
+  background: rgba(37,99,235,.12);
+}
+
+.watering-day-form.today button {
   outline: 2px solid var(--primary);
   outline-offset: -2px;
   color: var(--text);
   font-weight: 700;
 }
 
-.watering-day.watered {
+.watering-day-form.watered button {
   background: rgba(34, 197, 94, .18);
   color: var(--success);
   font-weight: 600;
 }
 
-.watering-day .wd-letter {
+.watering-day-form .wd-letter {
   font-size: .6rem;
   text-transform: uppercase;
 }
 
-.watering-day .wd-num {
+.watering-day-form .wd-num {
   font-size: .85rem;
 }
 
-.watering-day .wd-dot {
+.watering-day-form .wd-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
@@ -2548,7 +2565,7 @@ a.seedling-card:focus-visible {
   .seedling-grid { grid-template-columns: 1fr; }
   .watering-stats { grid-template-columns: repeat(3, 1fr); }
   .watering-calendar-grid { gap: .25rem; }
-  .watering-day .wd-num { font-size: .75rem; }
+  .watering-day-form .wd-num { font-size: .75rem; }
   .card-actions {
     padding: 0 .75rem .75rem;
     gap: .35rem;
@@ -2927,4 +2944,89 @@ a.seedling-card:focus-visible {
 .variety-sheet .variety-details > summary {
   flex-direction: column;
   gap: .25rem;
+}
+
+/* ============ MAIN NAVBAR ============ */
+.main-navbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--surface-light);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: .25rem .5rem;
+}
+
+.nav-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-right: .5rem;
+  white-space: nowrap;
+}
+.nav-brand-icon { font-size: 1.1rem; }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: .1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.nav-links::-webkit-scrollbar { display: none; }
+
+.nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: .35rem .5rem;
+  border-radius: .5rem;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: .85rem;
+  white-space: nowrap;
+  transition: color .15s, background .15s;
+}
+.nav-item:hover {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+.nav-item.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+.nav-icon { font-size: 1rem; display: inline-block; }
+.nav-label { display: none; margin-left: .3rem; }
+
+.nav-logout { margin-left: auto; opacity: .7; }
+.nav-logout:hover { opacity: 1; color: var(--danger); }
+
+/* Mobile: icon only */
+@media (min-width: 640px) {
+  .nav-label { display: inline; }
+  .nav-inner { gap: .75rem; }
+}
+
+/* Desktop: icon + label */
+@media (min-width: 900px) {
+  .main-navbar { padding: .35rem 1rem; }
+  .nav-item { padding: .4rem .7rem; }
 }

@@ -142,19 +142,10 @@ $mentalRate = $mentalTotal > 0 ? (int) round(($mentalReached / $mentalTotal) * 1
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<?php require __DIR__ . '/includes/navbar.php'; ?>
   <div class="container">
-    <header>
-      <h1>Discipline</h1>
-      <div class="header-center-group">
-        <span class="discipline-global-score" title="Score discipline">💪 <?= (int)$score['score'] ?></span>
-        <?php if ($score['avgStreak'] >= 1): ?>
-          <span class="mining-streak-badge"><?= number_format($score['avgStreak'], 1) ?> 🔥</span>
-        <?php endif; ?>
-      </div>
-      <a class="back-link" href="checklist.php" title="Retour">&lsaquo; Retour aux checklists</a>
-    </header>
-
-    <div class="view-toggle discipline-tabs">
+    <!-- navbar -->
+<div class="view-toggle discipline-tabs">
       <a href="?tab=corps" class="<?= $activeTab === 'corps' ? 'active' : '' ?>">💪 Corps</a>
       <a href="?tab=mental" class="<?= $activeTab === 'mental' ? 'active' : '' ?>">🧠 Mental</a>
       <a href="?tab=stats" class="<?= $activeTab === 'stats' ? 'active' : '' ?>">📊 Stats</a>

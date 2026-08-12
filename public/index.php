@@ -240,37 +240,10 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<?php require __DIR__ . '/includes/navbar.php'; ?>
   <div class="container">
-    <header>
-      <h1>TaskFlow</h1>
-      <span class="count"><?= count($tasksRaw) ?> tâche<?= count($tasksRaw) > 1 ? 's' : '' ?></span>
-      <a class="admin-link header-icon" href="discipline.php" title="Discipline">
-        <span class="header-icon-symbol">💪</span>
-        <span class="header-icon-label"><?= (int) $disciplineScore ?></span>
-      </a>
-      <a class="admin-link header-icon" href="checklist.php" title="Checklists">
-        <span class="header-icon-symbol">☑</span>
-        <span class="header-icon-label">Checklists</span>
-      </a>
-      <a class="admin-link header-icon" href="mining.php" title="Mining Deck">
-        <span class="header-icon-symbol">⛏️</span>
-        <span class="header-icon-label">Mining</span>
-      </a>
-      <a class="admin-link header-icon" href="seedlings.php" title="Semis">
-        <span class="header-icon-symbol">🌱</span>
-        <span class="header-icon-label">Semis</span>
-      </a>
-      <a class="admin-link header-icon" href="admin.php" title="Catégories">
-        <span class="header-icon-symbol">⚙</span>
-        <span class="header-icon-label">Admin</span>
-      </a>
-      <a class="admin-link header-icon" href="logout.php" title="Quitter">
-        <span class="header-icon-symbol">✕</span>
-        <span class="header-icon-label">Quitter</span>
-      </a>
-    </header>
-
-    <?php if ($error): ?>
+    <!-- navbar -->
+<?php if ($error): ?>
       <div class="error-banner"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 

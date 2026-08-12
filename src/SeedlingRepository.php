@@ -160,16 +160,19 @@ final class SeedlingRepository
     /** Retire un log d'arrosage si besoin (erreur utilisateur). */
     public function unwater(int $logId): void
     {
-        $stmt = $this->pdo->prepare('DELETE FROM watering_logs WHERE id = :id');
+        $stmt = $this->pdo->prepare('SELECT seedling_id FROM watering_logs WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $logId]);
+        $seedlingId = $stmt->fetchColumn() ?: null;
 
-        // Recalcule last_watered_at
-        $stmt = $this->pdo->prepare('
-            UPDATE seedlings
-            SET last_watered_at = (SELECT MAX(watered_at) FROM watering_logs WHERE seedling_id = seedlings.id)
-            WHERE id = (SELECT seedling_id FROM watering_logs WHERE id = :id2 LIMIT 1)
-        ');
-        $stmt->execute([':id2' => $logId]);
+        $this->pdo->prepare('DELETE FROM watering_logs WHERE id = :id')->execute([':id' => $logId]);
+
+        if ($seedlingId) {
+            $this->pdo->prepare('
+                UPDATE seedlings
+                SET last_watered_at = (SELECT MAX(watered_at) FROM watering_logs WHERE seedling_id = :sid)
+                WHERE id = :sid
+            ')->execute([':sid' => $seedlingId]);
+        }
     }
 
     /** Historique d'arrosage d'une plante, 120 derniers jours par défaut. */
@@ -187,11 +190,11 @@ final class SeedlingRepository
     /** Calendrier des arrosages : date -> présent/accumulation. */
     public function wateringCalendar(int $seedlingId, int $days = 42): array
     {
-        $stmt = $this->pdo->prepare('SELECT watered_at, COUNT(*) as cnt FROM watering_logs WHERE seedling_id = :id GROUP BY watered_at');
+        $stmt = $this->pdo->prepare('SELECT id, watered_at FROM watering_logs WHERE seedling_id = :id');
         $stmt->execute([':id' => $seedlingId]);
         $logs = [];
         foreach ($stmt->fetchAll() as $row) {
-            $logs[$row['watered_at']] = (int) $row['cnt'];
+            $logs[$row['watered_at']] = (int) $row['id'];
         }
 
         $cal = [];
@@ -200,7 +203,8 @@ final class SeedlingRepository
             $d = $today->modify("-{$i} days")->format('Y-m-d');
             $cal[$d] = [
                 'date' => $d,
-                'count' => $logs[$d] ?? 0,
+                'count' => isset($logs[$d]) ? 1 : 0,
+                'log_id' => $logs[$d] ?? null,
                 'isToday' => $d === $today->format('Y-m-d'),
             ];
         }

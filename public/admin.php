@@ -96,16 +96,10 @@ $selected = isset($categories[$selected]) ? $selected : '';
   <link rel="icon" href="favicon.php">
 </head>
 <body>
+<?php require __DIR__ . '/includes/navbar.php'; ?>
   <div class="container">
-    <header>
-      <h1>Catégories</h1>
-      <div class="header-actions">
-        <a class="admin-link" href="?export_csv=1" title="Export CSV">↓</a>
-        <a class="admin-link" href="logout.php" title="Déconnexion">✕</a>
-      </div>
-    </header>
-
-    <div class="admin-section">
+    <!-- navbar -->
+<div class="admin-section">
       <h2>Changer le PIN</h2>
       <form method="post" class="admin-form">
         <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
