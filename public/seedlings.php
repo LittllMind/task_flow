@@ -207,7 +207,7 @@ function formatMinMax(?int $min, ?int $max, string $unit): string
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>TaskFlow — Cultures</title>
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=4">
   <link rel="icon" href="favicon.php">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>

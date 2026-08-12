@@ -235,7 +235,7 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TaskFlow</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
   <link rel="icon" href="favicon.php">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -452,8 +452,7 @@ $priorities = [1 => 'Haute', 2 => 'Moyenne', 3 => 'Basse'];
       let subcats = <?= json_encode($categories, JSON_UNESCAPED_UNICODE) ?>;
       let tasksById = <?= json_encode($tasksById, JSON_UNESCAPED_UNICODE) ?>;
     </script>
-    <script src="app.js?v=2"></script>
-    <script src="deck.js?v=2"></script>
+    <script src="app.js?v=4"></script>
   </div>
 </body>
 </html>

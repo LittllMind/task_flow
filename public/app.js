@@ -32,7 +32,7 @@ function appOpenModal(mode = 'create') {
     modalTitle.textContent = 'Nouvelle tâche';
     submitBtn.textContent = 'Ajouter';
     fillSubcategories('');
-    // Let deck.js clear blockerContextId after its own click listener updates the form
+    // Clear blockerContextId after modal update
   }
 }
 
