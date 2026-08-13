@@ -235,6 +235,9 @@ function formatMinMax(?int $min, ?int $max, string $unit): string
                 <?php if ($s['variety'] || !empty($s['cultivar_name'])): ?>
                   <div class="seedling-variety"><?= htmlspecialchars($s['variety'] ?: $s['cultivar_name']) ?></div>
                 <?php endif; ?>
+                <?php if ($s['note']): ?>
+                  <div class="culture-note-inline"><?= htmlspecialchars($s['note']) ?></div>
+                <?php endif; ?>
                 <ul class="seedling-meta">
                   <li>🌱 Semé le <strong><?= fmt($s['seeded_at']) ?></strong></li>
                   <?php if ($s['repotted_at']): ?>

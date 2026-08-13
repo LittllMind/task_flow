@@ -2353,6 +2353,15 @@ header .discipline-score::before {
   margin-top: -.3rem;
 }
 
+.culture-note-inline {
+  font-size: .82rem;
+  color: var(--muted);
+  background: rgba(34, 197, 94, .08);
+  border-radius: .4rem;
+  padding: .3rem .5rem;
+  margin-bottom: .35rem;
+}
+
 .seedling-meta {
   list-style: none;
   margin: 0;
