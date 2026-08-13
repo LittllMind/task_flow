@@ -50,10 +50,29 @@
 - Calendrier cultures : chaque case devient un bouton toggle (arrosé / non-arrosé) sans rechargement complet
 - `wateringCalendar()` retourne `log_id` pour l'annulation ; `unwater()` corrige le recalcule `last_watered_at`
 
-### v0.6a — TaskFlow Cultures (bonus hors v0.x canonique) (2026-08-12)
+### v0.8.1 — Navbar commune + Calendrier cultures interactif (2026-08-12)
+- `includes/navbar.php` : navigation partagée sur 8 pages avec active-state + emojis HTML
+- Calendrier cultures : chaque case devient un bouton toggle (arrosé / non-arrosé)
+- `wateringCalendar()` retourne `log_id` ; `unwater()` corrige le recalcule `last_watered_at`
+
+### v0.8.2 — Déprécation index.php + styles alignés discipline (2026-08-12)
+- `index.php` obsolète → redirect `checklist.php`
+- Navbar "Tâches" → `checklist.php`
+- Onglets grid segmentés (style discipline)
+- Cartes tâches : header badges + actions horizontales
+
+### v0.8.3 — Cleanup orphelins prod (2026-08-12)
+- Suppression `php_part_only.php`, `picoclaw.php`
+- `.gitignore` exclut les deux fichiers
+
+### v0.9 — Recherche & Filtres Checklists (2026-08-13)
+- Barre recherche sidebar `checklist.php` (LIKE sur titres)
+- Filtres Toutes / Ouvertes / Terminées avec compteurs
+
+### v0.6a — TaskFlow Cultures (bonus) (2026-08-12)
 - Variétés + cultures (`varieties`, `cultures`, `variety_periods`)
-- `SeedlingRepository`, 6 variétés réelles + 27 périodes, seeds idempotents
-- Vue `seedlings.php` : arrosage, état visuel, dates semis/rempotage
+- `SeedlingRepository`, 6 variétés + 27 périodes
+- Vue `seedlings.php` : arrosage interactif, dates semis/rempotage
 
 ---
 
