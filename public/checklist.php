@@ -81,8 +81,23 @@ if (in_array($action, ['create', 'rename', 'delete_checklist', 'add_item', 'togg
 }
 
 $selectedId = isset($_GET['checklist_id']) ? (int) $_GET['checklist_id'] : 0;
-$all = $repo->listAll();
-$active = $selectedId > 0 ? $repo->findById($selectedId) : ($all ? $all[0] : null);
+$search = $_GET['search'] ?? '';
+$filterStatus = $_GET['filter_status'] ?? 'all';
+$all = $search !== '' ? $repo->search($search) : $repo->listAll();
+
+if ($filterStatus === 'open') {
+    $all = array_filter($all, function ($cl) use ($repo) {
+        $s = $repo->statsFor((int) $cl['id']);
+        return $s['total'] > 0 && $s['done'] < $s['total'];
+    });
+} elseif ($filterStatus === 'done') {
+    $all = array_filter($all, function ($cl) use ($repo) {
+        $s = $repo->statsFor((int) $cl['id']);
+        return $s['total'] > 0 && $s['done'] === $s['total'];
+    });
+}
+
+$active = $selectedId > 0 ? $repo->findById($selectedId) : ($all ? reset($all) : null);
 $activeId = $active ? (int) $active['id'] : 0;
 $items = $activeId > 0 ? $repo->itemsFor($activeId) : [];
 $stats = $activeId > 0 ? $repo->statsFor($activeId) : ['total' => 0, 'done' => 0];
@@ -122,6 +137,17 @@ $pct = $stats['total'] > 0 ? round($stats['done'] / $stats['total'] * 100) : 0;
               <input type="text" name="title" placeholder="Nouvelle..." required>
               <button type="submit" title="Cr&eacute;er">+</button>
             </form>
+          </div>
+          <div class="cl-sidebar-search">
+            <form method="get" class="cl-search-form">
+              <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="🔎 Rechercher..." >
+              <?php if ($search !== ''): ?><a href="checklist.php" class="cl-search-clear">✕</a><?php endif; ?>
+            </form>
+            <nav class="cl-filter-tabs">
+              <a href="checklist.php?filter_status=all<?=$search ? '&amp;search=' . urlencode($search) : '' ?>" class="<?=$filterStatus === 'all' ? 'active' : '' ?>">Toutes</a>
+              <a href="checklist.php?filter_status=open<?=$search ? '&amp;search=' . urlencode($search) : '' ?>" class="<?=$filterStatus === 'open' ? 'active' : '' ?>">Ouvertes</a>
+              <a href="checklist.php?filter_status=done<?=$search ? '&amp;search=' . urlencode($search) : '' ?>" class="<?=$filterStatus === 'done' ? 'active' : '' ?>">Terminées</a>
+            </nav>
           </div>
           <ul class="cl-list">
             <?php foreach ($all as $cl): ?>

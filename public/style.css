@@ -1040,6 +1040,59 @@ header .admin-link {
   color: var(--check-muted);
 }
 
+/* --- Sidebar Search & Filters --- */
+.cl-sidebar-search {
+  margin-bottom: .75rem;
+}
+
+.cl-search-form {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  margin-bottom: .5rem;
+}
+
+.cl-search-form input[type="text"] {
+  flex: 1;
+  padding: .5rem .65rem;
+  border: 1.5px solid var(--check-border);
+  border-radius: .6rem;
+  font-size: .85rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.cl-search-clear {
+  color: var(--check-muted);
+  text-decoration: none;
+  font-size: .9rem;
+  padding: .25rem;
+}
+
+.cl-filter-tabs {
+  display: flex;
+  gap: .35rem;
+}
+
+.cl-filter-tabs a {
+  flex: 1;
+  text-align: center;
+  padding: .4rem .35rem;
+  border-radius: .45rem;
+  font-size: .75rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--check-muted);
+  background: var(--bg);
+  transition: background .15s, color .15s;
+}
+
+.cl-filter-tabs a.active {
+  background: var(--check-accent);
+  color: #fff;
+}
+
+
 .cl-inline-create {
   display: flex;
   gap: .35rem;

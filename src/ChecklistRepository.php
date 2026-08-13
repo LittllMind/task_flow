@@ -163,4 +163,11 @@ final class ChecklistRepository
         $row = $stmt->fetch();
         return $row ?: null;
     }
+
+    public function search(string $q): array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM checklists WHERE title LIKE :q ORDER BY id DESC');
+        $stmt->execute([':q' => '%' . $q . '%']);
+        return $stmt->fetchAll();
+    }
 }
