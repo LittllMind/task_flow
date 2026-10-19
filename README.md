@@ -48,10 +48,18 @@ Domaine prod : `http://lmalp.10001mb.com/`
 Document root attendu par InfinityFree : `lmalp.10001mb.com/htdocs/`
 
 ### FTP
-- Host : `ftpupload.net`
-- Port : `21`
-- User : `if0_36247100`
-- Pass : `VKz6FwnHjzX`
+
+Configurer un client FTP, par exemple :
+
+```bash
+export TF_FTP_HOST="[À REMPLIR]"
+export TF_FTP_USER="[À REMPLIR]"
+export TF_FTP_PASS="[À REMPLIR]"
+
+lftp -u "$TF_FTP_USER,$TF_FTP_PASS" "$TF_FTP_HOST" -e "set ssl:verify-certificate no; mirror -R -e deploy/lmalp.10001mb.com/htdocs /lmalp.10001mb.com/htdocs; bye"
+```
+
+> Les credentials FTP ne sont pas versionnés dans ce dépôt. Les valeurs sont à renseigner dans l'environnement local.
 
 ### Procédure de build
 
@@ -72,7 +80,7 @@ Puis uploader le contenu de `deploy/lmalp.10001mb.com/htdocs/` dans `/lmalp.1000
 - Écriture SQLite autorisée uniquement dans `htdocs/`.
 - Pas de shell ni de chmod personnalisé.
 
-## Vibe-coding / reprse de projet
+## Reprise de projet
 
 Pour reprendre ou faire évoluer TaskFlow avec un assistant :
 
