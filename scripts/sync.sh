@@ -3,9 +3,9 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-FTP_USER="if0_36247100"
-FTP_PASS="VKz6FwnHjzX"
-FTP_HOST="ftpupload.net"
+FTP_HOST="${TF_FTP_HOST:-[FTP_HOST_NON_CONFIGURE]}"
+FTP_USER="${TF_FTP_USER:-[FTP_USER_NON_CONFIGURE]}"
+FTP_PASS="${TF_FTP_PASS:-[FTP_PASS_NON_CONFIGURE]}"
 REMOTE_DIR="/lmalp.10001mb.com/htdocs"
 LOCAL_BUILD="deploy/lmalp.10001mb.com/htdocs"
 DB_FILE="taskflow.db"
